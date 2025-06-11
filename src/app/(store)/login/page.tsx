@@ -9,42 +9,43 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '@/hooks/use-toast';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setLoading(true);
 
-    // Mock credentials
-    const mockAdminEmail = "admin@example.com";
-    const mockAdminPassword = "password123";
-    const mockUserEmail = "user@example.com";
-    const mockUserPassword = "password123";
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-    if (email === mockAdminEmail && password === mockAdminPassword) {
       toast({
         title: "Login Successful",
-        description: "Redirecting to admin dashboard...",
+        description: "Redirecting...",
       });
-      // In a real app, you'd set some session/auth state here
-      router.push('/admin');
-    } else if (email === mockUserEmail && password === mockUserPassword) {
-      toast({
-        title: "Login Successful",
-        description: "Redirecting to your account...",
-      });
-      // In a real app, you'd set some session/auth state here
-      router.push('/account');
-    } else {
+
+      if (user.email === "admin@example.com") {
+        router.push('/admin');
+      } else {
+        router.push('/account');
+      }
+    } catch (error: any) {
+      console.error("Firebase login error:", error);
       toast({
         title: "Login Failed",
-        description: "Invalid email or password.",
+        description: error.message || "Invalid email or password.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,6 +68,7 @@ export default function LoginPage() {
                 required 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div>
@@ -84,10 +86,11 @@ export default function LoginPage() {
                 required 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
               />
             </div>
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
         </CardContent>

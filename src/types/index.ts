@@ -1,4 +1,6 @@
 
+import type { Timestamp } from 'firebase/firestore';
+
 export type Product = {
   id: string;
   name: string;
@@ -33,17 +35,18 @@ export type Order = {
   items: CartItem[];
   totalAmount: number;
   status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
-  orderDate: string;
+  orderDate: string; // Consider using Timestamp for Firestore
   shippingAddress: string;
 };
 
 export type UserRole = 'customer' | 'admin' | 'super admin';
 
 export type User = {
-  id: string;
-  name: string;
-  email: string;
+  uid: string; // Firebase Auth UID
+  email: string | null;
+  name?: string | null; // displayName from Auth or Firestore
   role: UserRole;
-  createdAt: string;
+  createdAt?: Timestamp | string; // Firestore Timestamp or ISO string
+  // Legacy fields, can be removed if not used by mock data consumers anymore
+  id?: string; 
 };
-
