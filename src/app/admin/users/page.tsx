@@ -3,8 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { mockUsers } from "@/lib/mock-data";
-import { MoreHorizontal, UserPlus, Edit2, ShieldCheck, ShieldOff } from "lucide-react";
+import { MoreHorizontal, UserPlus, Edit2, ShieldCheck, ShieldOff, Crown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import type { UserRole } from "@/types";
+
+// Helper function to get badge variant based on role
+const getRoleBadgeVariant = (role: UserRole) => {
+  if (role === 'super admin') return 'destructive'; // Or a new variant for super admin
+  if (role === 'admin') return 'default';
+  return 'secondary';
+};
 
 export default function UsersPage() {
   return (
@@ -39,7 +47,7 @@ export default function UsersPage() {
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                    <Badge variant={getRoleBadgeVariant(user.role)}>
                       {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </Badge>
                   </TableCell>
@@ -54,10 +62,17 @@ export default function UsersPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem><Edit2 className="mr-2 h-4 w-4" /> Edit User</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        {user.role === 'customer' ? (
-                            <DropdownMenuItem><ShieldCheck className="mr-2 h-4 w-4" /> Make Admin</DropdownMenuItem>
-                        ) : (
-                            <DropdownMenuItem><ShieldOff className="mr-2 h-4 w-4" /> Revoke Admin</DropdownMenuItem>
+                        {user.role === 'customer' && (
+                          <DropdownMenuItem><ShieldCheck className="mr-2 h-4 w-4" /> Make Admin</DropdownMenuItem>
+                        )}
+                        {user.role === 'admin' && (
+                          <>
+                            <DropdownMenuItem><Crown className="mr-2 h-4 w-4" /> Make Super Admin</DropdownMenuItem>
+                            <DropdownMenuItem><ShieldOff className="mr-2 h-4 w-4" /> Revoke Admin (to Customer)</DropdownMenuItem>
+                          </>
+                        )}
+                        {user.role === 'super admin' && (
+                           <DropdownMenuItem><ShieldOff className="mr-2 h-4 w-4" /> Demote to Admin</DropdownMenuItem>
                         )}
                       </DropdownMenuContent>
                     </DropdownMenu>

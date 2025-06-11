@@ -134,8 +134,9 @@ export const mockOrders: Order[] = [
 
 export const mockUsers: User[] = [
   { id: 'USR001', name: 'Alice Wonderland', email: 'alice@example.com', role: 'customer', createdAt: '2023-01-15' },
-  { id: 'USR002', name: 'Bob The Builder', email: 'bob@example.com', role: 'customer', createdAt: '2023-02-20' },
-  { id: 'USR003', name: 'Admin User', email: 'admin@arobazzar.com', role: 'admin', createdAt: '2023-01-01' },
+  { id: 'USR002', name: 'Bob The Builder', email: 'bob@example.com', role: 'admin', createdAt: '2023-02-20' },
+  { id: 'USR003', name: 'Super Admin User', email: 'superadmin@arobazzar.com', role: 'super admin', createdAt: '2023-01-01' },
+  { id: 'USR004', name: 'Charlie Customer', email: 'charlie@example.com', role: 'customer', createdAt: '2023-03-10'}
 ];
 
 export const getProductBySlug = (slug: string): Product | undefined => {

@@ -37,10 +37,13 @@ export type Order = {
   shippingAddress: string;
 };
 
+export type UserRole = 'customer' | 'admin' | 'super admin';
+
 export type User = {
   id: string;
   name: string;
   email: string;
-  role: 'customer' | 'admin';
+  role: UserRole;
   createdAt: string;
 };
+
