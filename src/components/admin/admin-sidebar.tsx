@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -13,7 +14,10 @@ import {
   Store,
   LineChart,
   Home,
-  Palette
+  Palette,
+  PlusCircle, // Added for new order link
+  ListOrdered, // For order list
+  Settings2, // For store settings
 } from 'lucide-react';
 import {
   Sidebar,
@@ -25,30 +29,37 @@ import {
   SidebarMenuButton,
   SidebarGroup,
   SidebarGroupLabel
-} from '@/components/ui/sidebar'; // Assuming this is the path to your extended Sidebar
+} from '@/components/ui/sidebar'; 
 
 const adminNavItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+  {
+    label: 'Orders',
+    icon: ShoppingCart,
+    subItems: [
+      { href: '/admin/orders', label: 'All Orders', icon: ListOrdered },
+      { href: '/admin/orders/new', label: 'Add Manual Order', icon: PlusCircle },
+    ]
+  },
   {
     label: 'Catalog',
     icon: Package,
     subItems: [
       { href: '/admin/products', label: 'Products', icon: Package },
-      { href: '/admin/categories', label: 'Categories', icon: Package }, // Placeholder
+      { href: '/admin/categories', label: 'Categories', icon: Package }, 
     ]
   },
   { href: '/admin/users', label: 'Customers', icon: Users },
-  { href: '/admin/analytics', label: 'Analytics', icon: LineChart }, // Placeholder
+  { href: '/admin/analytics', label: 'Analytics', icon: LineChart }, 
   {
-    label: 'Storefront',
-    icon: Palette,
+    label: 'Storefront Settings',
+    icon: Settings2, // Changed icon for better distinction
     subItems: [
       { href: '/admin/settings/homepage', label: 'Homepage', icon: Home },
-      { href: '/admin/settings/theme', label: 'Theme', icon: Palette }, // Placeholder
+      { href: '/admin/settings/theme', label: 'Theme', icon: Palette }, 
     ]
   },
-  { href: '/admin/settings', label: 'Settings', icon: Settings },
+  { href: '/admin/settings', label: 'General Settings', icon: Settings },
 ];
 
 export function AdminSidebar() {
@@ -80,16 +91,16 @@ export function AdminSidebar() {
                     <item.icon className="h-5 w-5" />
                     <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                   </SidebarMenuButton>
-                  <div className="pl-4 group-data-[collapsible=icon]:hidden"> {/* Basic dropdown behavior for demo */}
+                  <div className="pl-4 group-data-[collapsible=icon]:hidden"> 
                     {item.subItems.map(subItem => (
                        <Link key={subItem.href} href={subItem.href}>
                          <SidebarMenuButton
-                            isActive={pathname.startsWith(subItem.href)}
+                            isActive={pathname === subItem.href || (subItem.href !== '/admin' && pathname.startsWith(subItem.href))}
                             tooltip={subItem.label}
                             className="justify-start w-full text-sm h-9"
                             variant="ghost"
                           >
-                          <subItem.icon className="h-4 w-4 mr-2" />
+                          {subItem.icon && <subItem.icon className="h-4 w-4 mr-2" />}
                           <span>{subItem.label}</span>
                         </SidebarMenuButton>
                        </Link>
@@ -119,7 +130,8 @@ export function AdminSidebar() {
                 <span className="group-data-[collapsible=icon]:hidden">Visit Site</span>
             </SidebarMenuButton>
         </Link>
-        <SidebarMenuButton tooltip="Logout" className="justify-start w-full">
+        {/* Logout functionality should be handled by the Header or a context */}
+        <SidebarMenuButton tooltip="Logout" className="justify-start w-full" disabled> 
           <LogOut className="h-5 w-5" />
           <span className="group-data-[collapsible=icon]:hidden">Logout</span>
         </SidebarMenuButton>

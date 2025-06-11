@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from '@/components/ui/button';
@@ -112,7 +113,7 @@ export default function CheckoutPage() {
           {/* Placeholder for order summary if needed, or this can be on cart page */}
           <div className="mt-6 border-t pt-6">
              <h3 className="font-semibold mb-2">Your Order Total:</h3>
-             <p className="text-2xl font-bold text-primary">$XXX.XX</p>
+             <p className="text-2xl font-bold text-primary">LKR XXX.XX</p>
              <p className="text-xs text-muted-foreground">(This is a placeholder. Actual total will be confirmed.)</p>
           </div>
         </div>

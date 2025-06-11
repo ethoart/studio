@@ -1,3 +1,4 @@
+
 "use client"; // Needs to be client for useState if adding to cart, or use server actions
 
 import { useState, useEffect } from 'react';
@@ -76,7 +77,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             <Image
                 src={allImages[currentImageIndex]}
                 alt={`${product.name} - view ${currentImageIndex + 1}`}
-                layout="fill"
+                fill // Use fill for responsive images
                 objectFit="cover"
                 className="transition-opacity duration-300"
                 data-ai-hint="product clothing"
@@ -118,7 +119,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             </div>
             <span className="text-sm text-muted-foreground">(125 reviews)</span>
           </div>
-          <p className="text-3xl font-bold text-primary">${product.price.toFixed(2)}</p>
+          <p className="text-3xl font-bold text-primary">LKR {product.price.toFixed(2)}</p>
           
           <Separator />
 
@@ -187,7 +188,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
           </div>
 
           <div className="space-y-3 text-sm text-muted-foreground">
-            <div className="flex items-center"><CheckCircle className="mr-2 h-5 w-5 text-green-500" /> Free shipping on orders over $50</div>
+            <div className="flex items-center"><CheckCircle className="mr-2 h-5 w-5 text-green-500" /> Free shipping on orders over LKR 5000</div>
             <div className="flex items-center"><Package className="mr-2 h-5 w-5 text-blue-500" /> Easy 30-day returns</div>
             <div className="flex items-center"><ShieldCheck className="mr-2 h-5 w-5 text-indigo-500" /> Secure payment options</div>
           </div>

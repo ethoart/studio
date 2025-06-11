@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '@/types';
@@ -38,7 +39,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </Link>
         <p className="text-sm text-muted-foreground mb-2">{product.category}</p>
         <p className="text-base font-semibold text-primary">
-          ${product.price.toFixed(2)}
+          LKR {product.price.toFixed(2)}
         </p>
       </CardContent>
       <CardFooter className="p-4 pt-0">

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -6,23 +7,58 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { HomepageGalleryImage } from '@/types';
 import { cn } from '@/lib/utils';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const GALLERY_IMAGES_PATH = "site_settings/homepage/galleryImages";
 
 interface ImageGalleryProps {
-  images: HomepageGalleryImage[];
   autoPlay?: boolean;
   interval?: number;
 }
 
-export function ImageGallery({ images, autoPlay = true, interval = 5000 }: ImageGalleryProps) {
+export function ImageGallery({ autoPlay = true, interval = 5000 }: ImageGalleryProps) {
+  const [images, setImages] = useState<HomepageGalleryImage[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      setIsLoading(true);
+      try {
+        const q = query(collection(db, GALLERY_IMAGES_PATH), orderBy("createdAt", "asc"));
+        const querySnapshot = await getDocs(q);
+        const fetchedImages: HomepageGalleryImage[] = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          fetchedImages.push({ 
+            id: doc.id, 
+            src: data.src, 
+            alt: data.alt,
+            dataAiHint: data.dataAiHint || "image", // Provide a default if missing
+          });
+        });
+        setImages(fetchedImages);
+      } catch (error) {
+        console.error("Error fetching gallery images for storefront:", error);
+        // Optionally set an error state to display a message to the user
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchImages();
+  }, []);
 
   const goToPrevious = () => {
+    if (images.length === 0) return;
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? images.length - 1 : prevIndex - 1
     );
   };
 
   const goToNext = React.useCallback(() => {
+    if (images.length === 0) return;
     setCurrentIndex((prevIndex) =>
       prevIndex === images.length - 1 ? 0 : prevIndex + 1
     );
@@ -35,10 +71,24 @@ export function ImageGallery({ images, autoPlay = true, interval = 5000 }: Image
     }
   }, [autoPlay, interval, goToNext, images.length]);
 
+  if (isLoading) {
+    return (
+      <div className="relative w-full h-[400px] md:h-[600px] overflow-hidden group">
+        <Skeleton className="w-full h-full" />
+         <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-center p-4">
+            <Skeleton className="h-12 w-3/4 mb-4" />
+            <Skeleton className="h-8 w-1/2 mb-6" />
+            <Skeleton className="h-12 w-32" />
+          </div>
+      </div>
+    );
+  }
+
   if (!images || images.length === 0) {
     return (
-      <div className="flex h-[500px] w-full items-center justify-center bg-muted text-muted-foreground">
-        No images to display.
+      <div className="flex h-[400px] md:h-[600px] w-full items-center justify-center bg-muted text-muted-foreground">
+        <p className="text-lg">ARO Bazzar Collection</p>
+        {/* You can add a default placeholder image here if desired */}
       </div>
     );
   }
@@ -56,7 +106,7 @@ export function ImageGallery({ images, autoPlay = true, interval = 5000 }: Image
           <Image
             src={image.src}
             alt={image.alt}
-            layout="fill"
+            fill // Changed from layout="fill" to fill for Next 13+
             objectFit="cover"
             priority={index === 0}
             data-ai-hint={image.dataAiHint}

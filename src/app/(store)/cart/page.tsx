@@ -1,3 +1,4 @@
+
 "use client"; // Needs to be client for cart interactions
 
 import { useState, useEffect } from 'react';
@@ -76,12 +77,12 @@ export default function CartPage() {
                       <h3 className="font-headline text-lg">
                         <Link href={`/product/${product.slug || product.id}`}>{product.name}</Link>
                       </h3>
-                      <p className="ml-4">${(product.price * product.quantity).toFixed(2)}</p>
+                      <p className="ml-4">LKR {(product.price * product.quantity).toFixed(2)}</p>
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {product.selectedColor} / {product.selectedSize}
                     </p>
-                    <p className="mt-1 text-sm text-muted-foreground">Unit Price: ${product.price.toFixed(2)}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Unit Price: LKR {product.price.toFixed(2)}</p>
                   </div>
                   <div className="flex flex-1 items-end justify-between text-sm mt-4">
                     <div className="flex items-center">
@@ -111,20 +112,20 @@ export default function CartPage() {
           <div className="space-y-3 text-sm">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>LKR {subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span>Shipping estimate</span>
-              <span>${shippingEstimate.toFixed(2)}</span>
+              <span>LKR {shippingEstimate.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span>Tax estimate</span>
-              <span>${taxEstimate.toFixed(2)}</span>
+              <span>LKR {taxEstimate.toFixed(2)}</span>
             </div>
             <Separator className="my-3" />
             <div className="flex justify-between text-base font-bold">
               <span>Order total</span>
-              <span>${total.toFixed(2)}</span>
+              <span>LKR {total.toFixed(2)}</span>
             </div>
           </div>
           <Link href="/checkout" className="mt-6 block">
