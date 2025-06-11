@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label'; // Added import
 import { Separator } from '@/components/ui/separator';
 import type { CartItem } from '@/types';
 import { mockProducts } from '@/lib/mock-data'; // For demo
