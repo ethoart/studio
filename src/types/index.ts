@@ -2,17 +2,20 @@
 import type { Timestamp } from 'firebase/firestore';
 
 export type Product = {
-  id: string;
+  id: string; // Firestore document ID
   name: string;
   price: number;
   description: string;
   category: string;
   imageUrl: string;
-  images?: string[];
-  sizes: string[];
-  colors: string[];
+  images?: string[]; // Array of image URLs
+  sizes: string[];   // Array of strings
+  colors: string[];  // Array of strings
   stock?: number;
   slug?: string;
+  sku?: string; // Stock Keeping Unit
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
 };
 
 export type CartItem = Product & {
