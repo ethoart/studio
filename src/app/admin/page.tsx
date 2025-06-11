@@ -1,17 +1,32 @@
+
+"use client";
+
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Users, ShoppingCart, TrendingUp } from "lucide-react";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from 'recharts'; // Using recharts as per shadcn/ui chart
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
-const salesData = [
-  { name: 'Jan', sales: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Feb', sales: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Mar', sales: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Apr', sales: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'May', sales: Math.floor(Math.random() * 5000) + 1000 },
-  { name: 'Jun', sales: Math.floor(Math.random() * 5000) + 1000 },
-];
+interface SalesDataPoint {
+  name: string;
+  sales: number;
+}
 
 export default function AdminDashboardPage() {
+  const [salesData, setSalesData] = useState<SalesDataPoint[]>([]);
+
+  useEffect(() => {
+    // Generate random sales data on the client side after hydration
+    const generateSalesData = () => [
+      { name: 'Jan', sales: Math.floor(Math.random() * 5000) + 1000 },
+      { name: 'Feb', sales: Math.floor(Math.random() * 5000) + 1000 },
+      { name: 'Mar', sales: Math.floor(Math.random() * 5000) + 1000 },
+      { name: 'Apr', sales: Math.floor(Math.random() * 5000) + 1000 },
+      { name: 'May', sales: Math.floor(Math.random() * 5000) + 1000 },
+      { name: 'Jun', sales: Math.floor(Math.random() * 5000) + 1000 },
+    ];
+    setSalesData(generateSalesData());
+  }, []); // Empty dependency array ensures this runs once on mount
+
   return (
     <div className="space-y-6">
       <h1 className="font-headline text-3xl font-bold">Admin Dashboard</h1>
@@ -67,10 +82,15 @@ export default function AdminDashboardPage() {
         <CardContent className="h-[350px]">
            <ResponsiveContainer width="100%" height="100%">
             <BarChart data={salesData}>
-              <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-              <Tooltip formatter={(value: number) => [`$${value.toFixed(2)}`, "Sales"]}/>
-              <Legend />
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+              <Tooltip 
+                contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }}
+                labelStyle={{ color: "hsl(var(--foreground))" }}
+                itemStyle={{ color: "hsl(var(--foreground))" }}
+                formatter={(value: number) => [`$${value.toFixed(2)}`, "Sales"]}
+              />
+              <Legend wrapperStyle={{ color: "hsl(var(--foreground))"}} />
               <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
