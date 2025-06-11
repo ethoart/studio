@@ -37,6 +37,13 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
+  // Debugging log for isAdminUser in Header
+  React.useEffect(() => {
+    if (!loading) {
+      console.log("Header isAdminUser:", isAdminUser, "User:", user);
+    }
+  }, [isAdminUser, loading, user]);
+
 
   const handleLogout = async () => {
     try {
@@ -191,3 +198,4 @@ export function Header() {
     </header>
   );
 }
+
