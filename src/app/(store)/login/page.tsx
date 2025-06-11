@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -6,17 +7,45 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const { toast } = useToast();
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Placeholder login logic
-    toast({
-      title: "Login Attempt (Demo)",
-      description: "Login functionality is not implemented in this demo.",
-    });
+
+    // Mock credentials
+    const mockAdminEmail = "admin@example.com";
+    const mockAdminPassword = "password123";
+    const mockUserEmail = "user@example.com";
+    const mockUserPassword = "password123";
+
+    if (email === mockAdminEmail && password === mockAdminPassword) {
+      toast({
+        title: "Login Successful",
+        description: "Redirecting to admin dashboard...",
+      });
+      // In a real app, you'd set some session/auth state here
+      router.push('/admin');
+    } else if (email === mockUserEmail && password === mockUserPassword) {
+      toast({
+        title: "Login Successful",
+        description: "Redirecting to your account...",
+      });
+      // In a real app, you'd set some session/auth state here
+      router.push('/account');
+    } else {
+      toast({
+        title: "Login Failed",
+        description: "Invalid email or password.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -30,7 +59,15 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="email">Email Address</Label>
-              <Input id="email" name="email" type="email" autoComplete="email" required />
+              <Input 
+                id="email" 
+                name="email" 
+                type="email" 
+                autoComplete="email" 
+                required 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
             <div>
               <div className="flex items-center justify-between">
@@ -39,7 +76,15 @@ export default function LoginPage() {
                   Forgot your password?
                 </Link>
               </div>
-              <Input id="password" name="password" type="password" autoComplete="current-password" required />
+              <Input 
+                id="password" 
+                name="password" 
+                type="password" 
+                autoComplete="current-password" 
+                required 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
             <Button type="submit" className="w-full">
               Sign In
