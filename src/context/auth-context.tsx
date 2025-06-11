@@ -2,7 +2,9 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
+import type { DocumentData } from 'firebase/firestore';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { User as AppUser, UserRole } from '@/types';
@@ -25,33 +27,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser);
+      setLoading(true); 
+
       if (fbUser) {
-        // Check for admin email
-        const isAdmin = fbUser.email === "admin@example.com";
-        setIsAdminUser(isAdmin);
+        let finalUserRole: UserRole = 'customer'; // Default role
+        let finalIsAdmin = false;
+        let finalUserName: string | null | undefined = fbUser.displayName;
+        let finalUserCreatedAt: AppUser['createdAt'] = undefined;
 
         // Fetch user profile from Firestore
         const userDocRef = doc(db, 'users', fbUser.uid);
         const userDoc = await getDoc(userDocRef);
+
         if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setUser({
-            uid: fbUser.uid,
-            email: fbUser.email,
-            name: userData.name || fbUser.displayName,
-            role: userData.role || 'customer',
-            createdAt: userData.createdAt,
-          });
-        } else {
-          // Fallback if no Firestore profile (e.g., just registered, profile creation pending)
-           setUser({
-            uid: fbUser.uid,
-            email: fbUser.email,
-            name: fbUser.displayName,
-            role: isAdmin ? 'admin' : 'customer', // Assign role based on email if no profile
-          });
+          const userData = userDoc.data() as DocumentData; // Use DocumentData for broader typing
+          // Firestore role is the primary source of truth if the document exists
+          finalUserRole = (userData.role as UserRole) || 'customer'; 
+          finalUserName = userData.name || fbUser.displayName;
+          finalUserCreatedAt = userData.createdAt;
+        } else if (fbUser.email === "admin@example.com") {
+          // If Firestore document doesn't exist, check if it's the special admin email
+          finalUserRole = 'admin';
         }
+        // If no Firestore doc and not the special admin email, role remains 'customer' from default
+
+        // Determine admin status based on the final resolved role
+        if (finalUserRole === 'admin' || finalUserRole === 'super admin') {
+          finalIsAdmin = true;
+        }
+
+        setUser({
+          uid: fbUser.uid,
+          email: fbUser.email,
+          name: finalUserName,
+          role: finalUserRole,
+          createdAt: finalUserCreatedAt,
+        });
+        setIsAdminUser(finalIsAdmin);
+
       } else {
+        // No Firebase user logged in
         setUser(null);
         setIsAdminUser(false);
       }
