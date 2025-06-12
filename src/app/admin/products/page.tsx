@@ -37,20 +37,22 @@ export default function ProductsPage() {
           id: docSnap.id,
           name: data.name || 'N/A',
           price: data.price || 0,
-          category: data.category || 'Uncategorized',
+          categoryName: data.categoryName || 'Uncategorized', // Use categoryName
+          categoryId: data.categoryId || '',
           imageUrl: data.imageUrl || 'https://placehold.co/48x48.png',
-          stock: data.stock || 0,
+          stock: data.stock === undefined ? 0 : data.stock, // Default stock to 0 if undefined
           sizes: data.sizes || [],
           colors: data.colors || [],
           description: data.description || '',
-          createdAt: data.createdAt as Timestamp, // Assuming it's a Firestore Timestamp
+          slug: data.slug || '',
+          createdAt: data.createdAt as Timestamp,
           updatedAt: data.updatedAt as Timestamp,
-        });
+        } as Product); // Added 'as Product' for stricter typing
       });
       setProducts(fetchedProducts);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error fetching products:", err);
-      setError("Failed to fetch products. Please check Firestore permissions and ensure the 'products' collection exists.");
+      setError(`Failed to fetch products. ${err.message}. Please check Firestore permissions and ensure the 'products' collection exists.`);
       toast({ title: "Error", description: "Could not fetch products.", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -61,14 +63,14 @@ export default function ProductsPage() {
     fetchProducts();
   }, []);
 
-  const handleDeleteProduct = async (productId: string) => {
+  const handleDeleteProduct = async (productId: string, productName: string) => {
     try {
       await deleteDoc(doc(db, "products", productId));
-      toast({ title: "Success", description: "Product deleted successfully." });
+      toast({ title: "Success", description: `Product "${productName}" deleted successfully.` });
       fetchProducts(); // Refresh the list
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error deleting product:", err);
-      toast({ title: "Error", description: "Could not delete product.", variant: "destructive" });
+      toast({ title: "Error", description: `Could not delete product: ${err.message}`, variant: "destructive" });
     }
   };
 
@@ -83,11 +85,21 @@ export default function ProductsPage() {
 
   if (error) {
     return (
-      <div className="text-center py-10 bg-destructive/10 border border-destructive text-destructive p-4 rounded-md">
-        <AlertTriangle className="mx-auto h-12 w-12 mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Error Loading Products</h2>
-        <p>{error}</p>
-        <Button onClick={fetchProducts} className="mt-4">Try Again</Button>
+       <div className="space-y-6">
+         <div className="flex items-center justify-between">
+          <h1 className="font-headline text-3xl font-bold">Product Management</h1>
+            <Link href="/admin/products/new">
+            <Button>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Product
+            </Button>
+            </Link>
+        </div>
+        <div className="text-center py-10 bg-destructive/10 border border-destructive text-destructive p-4 rounded-md">
+            <AlertTriangle className="mx-auto h-12 w-12 mb-4" />
+            <h2 className="text-xl font-semibold mb-2">Error Loading Products</h2>
+            <p>{error}</p>
+            <Button onClick={fetchProducts} className="mt-4">Try Again</Button>
+        </div>
       </div>
     );
   }
@@ -113,6 +125,7 @@ export default function ProductsPage() {
               <p className="text-muted-foreground">No products found.</p>
               <p className="text-sm text-muted-foreground mt-2">
                 Add your first product by clicking the &quot;Add Product&quot; button.
+                Ensure products in Firestore have `createdAt` timestamps for correct ordering.
               </p>
             </div>
           ) : (
@@ -142,12 +155,12 @@ export default function ProductsPage() {
                       />
                     </TableCell>
                     <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell>{product.category}</TableCell>
-                    <TableCell>${product.price.toFixed(2)}</TableCell>
-                    <TableCell>{product.stock ?? 'N/A'}</TableCell>
+                    <TableCell>{product.categoryName}</TableCell>
+                    <TableCell>LKR {product.price.toFixed(2)}</TableCell>
+                    <TableCell>{product.stock}</TableCell>
                     <TableCell>
-                      <Badge variant={(product.stock || 0) > 0 ? 'default' : 'destructive'}>
-                        {(product.stock || 0) > 0 ? 'In Stock' : 'Out of Stock'}
+                      <Badge variant={product.stock > 0 ? 'default' : 'destructive'}>
+                        {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -176,7 +189,7 @@ export default function ProductsPage() {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteProduct(product.id)} className="bg-destructive hover:bg-destructive/90">
+                                <AlertDialogAction onClick={() => handleDeleteProduct(product.id, product.name)} className="bg-destructive hover:bg-destructive/90">
                                   Delete
                                 </AlertDialogAction>
                               </AlertDialogFooter>

@@ -17,7 +17,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <CardHeader className="p-0 relative">
         <Link href={`/product/${product.slug || product.id}`} className="block aspect-[3/4] w-full overflow-hidden">
           <Image
-            src={product.imageUrl}
+            src={product.imageUrl || 'https://placehold.co/400x533.png'} // Fallback image
             alt={product.name}
             width={400}
             height={533}
@@ -29,7 +29,8 @@ export function ProductCard({ product }: ProductCardProps) {
           <Heart className="h-5 w-5" />
           <span className="sr-only">Add to wishlist</span>
         </Button>
-        {product.category === 'New Arrival' && <Badge className="absolute top-2 left-2">New</Badge>}
+        {/* Example: Display a "New" badge if product has a specific tag or based on creation date */}
+        {/* {product.tags?.includes('New Arrival') && <Badge className="absolute top-2 left-2">New</Badge>} */}
       </CardHeader>
       <CardContent className="p-4 flex-grow">
         <Link href={`/product/${product.slug || product.id}`}>
@@ -37,7 +38,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </CardTitle>
         </Link>
-        <p className="text-sm text-muted-foreground mb-2">{product.category}</p>
+        <p className="text-sm text-muted-foreground mb-2">{product.categoryName || 'Uncategorized'}</p>
         <p className="text-base font-semibold text-primary">
           LKR {product.price.toFixed(2)}
         </p>

@@ -6,9 +6,8 @@ export type Product = {
   name: string;
   price: number;
   description: string;
-  category: string; // This might become categoryId or categoryName after refactor
-  categoryId?: string; // To link to a category document
-  categoryName?: string; // Denormalized category name for display
+  categoryId: string; // ID of the category this product belongs to
+  categoryName: string; // Denormalized category name for display
   imageUrl: string;
   images?: string[]; // Array of image URLs
   sizes: string[];   // Array of strings

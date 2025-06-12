@@ -5,24 +5,24 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label"; // Keep for non-form elements if any
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { ArrowLeft, Loader2, AlertTriangle } from "lucide-react";
-import type { Product } from "@/types";
+import type { Product, Category } from "@/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { db } from '@/lib/firebase';
-import { doc, getDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, serverTimestamp, Timestamp, collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { useRouter } from "next/navigation";
 
 const productFormSchema = z.object({
   name: z.string().min(3, "Product name must be at least 3 characters"),
-  category: z.string().min(1, "Please select a category"),
+  categoryId: z.string().min(1, "Please select a category"),
+  // categoryName is derived
   description: z.string().min(10, "Description must be at least 10 characters"),
   price: z.coerce.number().positive("Price must be a positive number"),
   stock: z.coerce.number().int().min(0, "Stock cannot be negative"),
@@ -31,25 +31,68 @@ const productFormSchema = z.object({
   colors: z.string().refine(val => val.split(',').map(s => s.trim()).filter(s => s).length > 0, { message: "Please provide at least one color"}),
   imageUrl: z.string().url("Please enter a valid URL for the main image"),
   additionalImages: z.string().optional(),
+  slug: z.string().min(3, "Slug must be at least 3 characters").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase alphanumeric with hyphens"),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
+
+// Helper to generate a slug (basic version)
+const generateSlugFromName = (name: string) => {
+  return name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+};
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
+  const [isFetchingProduct, setIsFetchingProduct] = useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isFetchingCategories, setIsFetchingCategories] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     mode: "onChange",
   });
+  
+  const productName = form.watch("name");
+  useEffect(() => {
+    // Only auto-update slug if it was likely auto-generated or if the original name changes significantly.
+    // This simple version will update if name changes and slug was based on old name.
+    const currentSlug = form.getValues("slug");
+    if (productName && (!currentSlug || currentSlug === generateSlugFromName(form.getValues("name")) || currentSlug !== generateSlugFromName(productName))) {
+      // form.setValue("slug", generateSlugFromName(productName), { shouldValidate: true });
+      // To avoid aggressive slug changes, let user manage it mostly after initial generation.
+      // One option: set slug only if it's currently empty during edit.
+    }
+  }, [productName, form]);
+
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setIsFetchingCategories(true);
+      try {
+        const categoriesCollectionRef = collection(db, "categories");
+        const q = query(categoriesCollectionRef, orderBy("name", "asc"));
+        const querySnapshot = await getDocs(q);
+        const fetchedCategories: Category[] = [];
+        querySnapshot.forEach((doc) => {
+          fetchedCategories.push({ id: doc.id, ...doc.data() } as Category);
+        });
+        setCategories(fetchedCategories);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        toast({ title: "Error", description: "Could not fetch categories.", variant: "destructive" });
+      } finally {
+        setIsFetchingCategories(false);
+      }
+    };
+    fetchCategories();
+  }, [toast]);
 
   useEffect(() => {
     const fetchProduct = async () => {
-      setIsFetching(true);
+      setIsFetchingProduct(true);
       setError(null);
       try {
         const productDocRef = doc(db, "products", params.id);
@@ -59,7 +102,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           const productData = productSnap.data() as Product;
           form.reset({
             name: productData.name,
-            category: productData.category,
+            categoryId: productData.categoryId,
             description: productData.description,
             price: productData.price,
             stock: productData.stock || 0,
@@ -68,6 +111,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
             colors: productData.colors.join(', '),
             imageUrl: productData.imageUrl,
             additionalImages: (productData.images || []).join(',\n'),
+            slug: productData.slug || generateSlugFromName(productData.name),
           });
         } else {
           setError("Product not found.");
@@ -78,7 +122,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         setError("Failed to fetch product details.");
         toast({ title: "Error", description: "Could not fetch product details.", variant: "destructive" });
       } finally {
-        setIsFetching(false);
+        setIsFetchingProduct(false);
       }
     };
 
@@ -89,10 +133,18 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
 
   const onSubmit = async (data: ProductFormValues) => {
     setIsLoading(true);
+    const selectedCategory = categories.find(cat => cat.id === data.categoryId);
+    if (!selectedCategory) {
+      toast({ title: "Error", description: "Selected category not found. Please refresh.", variant: "destructive" });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const productDocRef = doc(db, "products", params.id);
       const productDataToUpdate = {
         ...data,
+        categoryName: selectedCategory.name, // Add categoryName
         sizes: data.sizes.split(',').map(s => s.trim()).filter(s => s),
         colors: data.colors.split(',').map(c => c.trim()).filter(c => c),
         images: data.additionalImages ? data.additionalImages.split(',').map(url => url.trim()).filter(url => url) : [],
@@ -118,7 +170,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     }
   };
 
-  if (isFetching) {
+  if (isFetchingProduct || isFetchingCategories) {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -164,7 +216,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
               <CardDescription>Update the details for this product.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="name"
@@ -176,29 +228,37 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                     </FormItem>
                   )}
                 />
-                <FormField
+                 <FormField
                   control={form.control}
-                  name="category"
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product Slug</FormLabel>
+                      <FormControl><Input {...field} /></FormControl>
+                      <FormDescription>URL-friendly identifier. Change with caution.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+               <FormField
+                  control={form.control}
+                  name="categoryId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl><SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger></FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isFetchingCategories}>
+                        <FormControl><SelectTrigger><SelectValue placeholder={isFetchingCategories ? "Loading categories..." : "Select category"} /></SelectTrigger></FormControl>
                         <SelectContent>
-                          <SelectItem value="outerwear">Outerwear</SelectItem>
-                          <SelectItem value="tops">Tops</SelectItem>
-                          <SelectItem value="bottoms">Bottoms</SelectItem>
-                          <SelectItem value="dresses">Dresses</SelectItem>
-                          <SelectItem value="knitwear">Knitwear</SelectItem>
-                          <SelectItem value="shoes">Shoes</SelectItem>
-                          <SelectItem value="accessories">Accessories</SelectItem>
+                          {!isFetchingCategories && categories.map(cat => (
+                            <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
               
               <FormField
                 control={form.control}
@@ -218,7 +278,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price ($)</FormLabel>
+                      <FormLabel>Price (LKR)</FormLabel>
                       <FormControl><Input type="number" step="0.01" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -298,8 +358,8 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
               />
             </CardContent>
             <CardFooter className="border-t px-6 py-4">
-              <Button type="submit" disabled={isLoading || isFetching}>
-                {(isLoading || isFetching) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={isLoading || isFetchingProduct || isFetchingCategories}>
+                {(isLoading || isFetchingProduct || isFetchingCategories) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Changes
               </Button>
             </CardFooter>
