@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, limit, Timestamp, addDoc, serverTimestamp, orderBy } from 'firebase/firestore'; // Firebase imports for reviews
 import { format } from 'date-fns'; // For formatting review dates
+import { cn } from '@/lib/utils'; // Import cn utility
 
 interface ResolvedPageParams {
   slug: string;
@@ -28,18 +29,47 @@ interface ProductDetailPageProps {
   params: Promise<ResolvedPageParams>;
 }
 
-// Star component for display and input
+// Enhanced Star component for display and input
 const StarRating = ({ rating, onRatingChange, interactive = false, size = "h-5 w-5" }: { rating: number; onRatingChange?: (newRating: number) => void; interactive?: boolean; size?: string; }) => {
   return (
-    <div className={`flex ${interactive ? 'cursor-pointer' : ''}`}>
-      {[1, 2, 3, 4, 5].map((star) => (
-        <Star
-          key={star}
-          className={`${size} ${star <= rating ? (interactive ? 'text-yellow-400 fill-yellow-400' : 'text-yellow-400 fill-yellow-400') : (interactive ? 'text-gray-300 hover:text-yellow-300' : 'text-gray-300')} 
-                      ${interactive ? 'hover:scale-110 transition-transform' : ''}`}
-          onClick={() => interactive && onRatingChange && onRatingChange(star)}
-        />
-      ))}
+    <div className="flex items-center" 
+         role={interactive ? "toolbar" : undefined} 
+         aria-label={interactive ? "Product rating" : `${rating} out of 5 stars`}>
+      {[1, 2, 3, 4, 5].map((starValue) => {
+        if (interactive) {
+          return (
+            <button
+              key={starValue}
+              type="button"
+              aria-label={`Rate ${starValue} star${starValue > 1 ? 's' : ''}`}
+              aria-pressed={starValue <= rating}
+              onClick={() => onRatingChange && onRatingChange(starValue)}
+              className="p-0.5 rounded-sm focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-1 disabled:opacity-50"
+              disabled={!onRatingChange} // Disable if no handler
+            >
+              <Star
+                className={cn(
+                  size,
+                  starValue <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 hover:text-yellow-300',
+                  'transition-colors duration-150',
+                  onRatingChange ? 'cursor-pointer hover:scale-110 transform' : ''
+                )}
+              />
+            </button>
+          );
+        }
+        // Non-interactive display
+        return (
+          <Star
+            key={starValue}
+            className={cn(
+              size,
+              starValue <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
+            )}
+            aria-hidden="true" 
+          />
+        );
+      })}
     </div>
   );
 };
@@ -459,3 +489,4 @@ export default function ProductDetailPage({ params: paramsPromise }: ProductDeta
     </div>
   );
 }
+
