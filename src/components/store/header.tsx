@@ -2,6 +2,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image'; // Import Next.js Image component
 import { ShoppingCart, User, Search, Menu, Shield, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +11,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { useAuth } from '@/context/auth-context';
-import { useCart } from '@/context/cart-context'; // Import useCart
+import { useCart } from '@/context/cart-context'; 
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -34,12 +35,12 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, firebaseUser, isAdminUser, loading: authLoading } = useAuth();
-  const { cartItems, loading: cartContextLoading } = useCart(); // Get cartItems from context
+  const { cartItems, loading: cartContextLoading } = useCart(); 
   const { toast } = useToast();
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
-  const loading = authLoading || cartContextLoading; // Combine loading states
+  const loading = authLoading || cartContextLoading; 
 
   const handleLogout = async () => {
     try {
@@ -58,7 +59,14 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center">
-          <span className="font-headline text-2xl font-bold text-primary">ARO Bazzar</span>
+          <Image
+            src="https://raw.githubusercontent.com/ethoart/ARO-Bazzar-NEXT-JS/main/logo%20pngs/Untitled-2.png"
+            alt="ARO Bazzar Logo"
+            width={120} // Adjust width as needed
+            height={40} // Adjust height as needed
+            className="object-contain" // Ensures the image scales correctly
+            priority
+          />
         </Link>
 
         <nav className="hidden items-center space-x-6 md:flex">
