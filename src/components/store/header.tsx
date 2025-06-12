@@ -10,6 +10,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { useAuth } from '@/context/auth-context';
+import { useCart } from '@/context/cart-context'; // Import useCart
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -32,18 +33,13 @@ const navLinks = [
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, firebaseUser, isAdminUser, loading } = useAuth();
+  const { user, firebaseUser, isAdminUser, loading: authLoading } = useAuth();
+  const { cartItems, loading: cartContextLoading } = useCart(); // Get cartItems from context
   const { toast } = useToast();
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
-  // Debugging log for isAdminUser in Header
-  React.useEffect(() => {
-    if (!loading) {
-      console.log("Header isAdminUser:", isAdminUser, "User:", user);
-    }
-  }, [isAdminUser, loading, user]);
-
+  const loading = authLoading || cartContextLoading; // Combine loading states
 
   const handleLogout = async () => {
     try {
@@ -55,6 +51,8 @@ export function Header() {
       toast({ title: "Logout Failed", description: "Could not log out. Please try again.", variant: "destructive" });
     }
   };
+
+  const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -84,8 +82,13 @@ export function Header() {
             <span className="sr-only">Search</span>
           </Button>
           <Link href="/cart">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                  {cartItemCount}
+                </span>
+              )}
               <span className="sr-only">Shopping Cart</span>
             </Button>
           </Link>
@@ -99,7 +102,7 @@ export function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>Hi, {user?.name?.split(' ')[0] || 'User'}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <Link href="/account"><DropdownMenuItem>Profile</DropdownMenuItem></Link>
                 <Link href="/account/orders"><DropdownMenuItem>Orders</DropdownMenuItem></Link>
@@ -198,4 +201,3 @@ export function Header() {
     </header>
   );
 }
-

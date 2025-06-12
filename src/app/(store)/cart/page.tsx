@@ -1,49 +1,39 @@
 
-"use client"; // Needs to be client for cart interactions
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react'; // Removed useState as cartItems come from context
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import type { CartItem } from '@/types';
-// Removed: import { mockProducts } from '@/lib/mock-data'; 
-import { Trash2, ShoppingBag } from 'lucide-react';
-
-// Cart now initializes as empty. In a real app, this would come from context/state management or localStorage.
-const initialCartItems: CartItem[] = [];
+import { Trash2, ShoppingBag, Loader2 } from 'lucide-react';
+import { useCart } from '@/context/cart-context'; // Import useCart
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+  const { cartItems, removeFromCart, updateQuantity, getCartTotal, loading: cartLoading } = useCart();
 
-  // In a real app, you'd likely fetch cartItems from a persistent source here in useEffect
-  // For now, it just uses the initial empty state or whatever is manipulated by user actions.
-
-  const updateQuantity = (id: string, newQuantity: number) => {
-    setCartItems(currentItems =>
-      currentItems.map(item =>
-        item.id === id ? { ...item, quantity: Math.max(1, newQuantity) } : item
-      )
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setCartItems(currentItems => currentItems.filter(item => item.id !== id));
-  };
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shippingEstimate = cartItems.length > 0 ? 5.00 : 0; // Example shipping
-  const taxEstimate = subtotal * 0.08; // Example tax
+  const subtotal = getCartTotal();
+  // Example shipping and tax, adjust as needed or make dynamic
+  const shippingEstimate = cartItems.length > 0 ? 5.00 : 0; 
+  const taxEstimate = subtotal * 0.08; 
   const total = subtotal + shippingEstimate + taxEstimate;
+
+  if (cartLoading) {
+    return (
+      <div className="container mx-auto px-4 py-16 flex justify-center items-center min-h-[calc(100vh-10rem)]">
+        <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (cartItems.length === 0) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <ShoppingBag className="mx-auto h-24 w-24 text-muted-foreground mb-6" />
         <h1 className="font-headline text-3xl font-bold mb-4">Your Cart is Empty</h1>
-        <p className="text-muted-foreground mb-8">Looks like you haven't added anything to your cart yet.</p>
+        <p className="text-muted-foreground mb-8">Looks like you haven&apos;t added anything to your cart yet.</p>
         <Link href="/shop">
           <Button size="lg">Continue Shopping</Button>
         </Link>
@@ -58,12 +48,13 @@ export default function CartPage() {
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <ul role="list" className="divide-y divide-border border-b border-t">
-            {cartItems.map((product) => (
-              <li key={product.id} className="flex py-6">
+            {cartItems.map((item) => ( // Renamed product to item for clarity from context
+              <li key={item.id} className="flex py-6">
                 <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-border sm:h-32 sm:w-32">
                   <Image
-                    src={product.imageUrl || 'https://placehold.co/128x128.png'}
-                    alt={product.name}
+                    // Use item.productId for linking if item.id is composite, or product.slug if available
+                    src={item.imageUrl || 'https://placehold.co/128x128.png'}
+                    alt={item.name}
                     width={128}
                     height={128}
                     className="h-full w-full object-cover object-center"
@@ -75,28 +66,29 @@ export default function CartPage() {
                   <div>
                     <div className="flex justify-between text-base font-medium">
                       <h3 className="font-headline text-lg">
-                        <Link href={`/product/${product.slug || product.id}`}>{product.name}</Link>
+                        {/* Use item.productId for linking if item.id is composite */}
+                        <Link href={`/product/${item.slug || item.productId || item.id}`}>{item.name}</Link>
                       </h3>
-                      <p className="ml-4">LKR {(product.price * product.quantity).toFixed(2)}</p>
+                      <p className="ml-4">LKR {(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {product.selectedColor} / {product.selectedSize}
+                      {item.selectedColor} / {item.selectedSize}
                     </p>
-                    <p className="mt-1 text-sm text-muted-foreground">Unit Price: LKR {product.price.toFixed(2)}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Unit Price: LKR {item.price.toFixed(2)}</p>
                   </div>
                   <div className="flex flex-1 items-end justify-between text-sm mt-4">
                     <div className="flex items-center">
-                      <Label htmlFor={`quantity-${product.id}`} className="sr-only">Quantity</Label>
+                      <Label htmlFor={`quantity-${item.id}`} className="sr-only">Quantity</Label>
                       <Input
-                        id={`quantity-${product.id}`}
+                        id={`quantity-${item.id}`}
                         type="number"
-                        value={product.quantity}
-                        onChange={(e) => updateQuantity(product.id, parseInt(e.target.value))}
+                        value={item.quantity}
+                        onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
                         className="w-20 h-9 p-1.5 text-center"
                         min="1"
                       />
                     </div>
-                    <Button variant="ghost" type="button" onClick={() => removeItem(product.id)} className="font-medium text-primary hover:text-primary/80">
+                    <Button variant="ghost" type="button" onClick={() => removeFromCart(item.id)} className="font-medium text-primary hover:text-primary/80">
                       <Trash2 className="mr-1 h-4 w-4" /> Remove
                     </Button>
                   </div>

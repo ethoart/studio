@@ -17,15 +17,21 @@ export type Product = {
   sku?: string; // Stock Keeping Unit
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
-  rating?: number; // Optional rating
-  reviewCount?: number; // Optional review count
+  rating?: number; 
+  reviewCount?: number; 
 };
 
-export type CartItem = Product & {
+// CartItem specific fields
+// It extends Product but 'id' in CartItem can be a composite ID (productId-color-size)
+// while 'productId' would store the original product ID.
+export type CartItem = Omit<Product, 'id'> & {
+  id: string; // This will be the composite cart item ID e.g., 'product123-red-medium'
+  productId: string; // Original product ID from Firestore
   quantity: number;
   selectedSize: string;
   selectedColor: string;
 };
+
 
 export type HomepageGalleryImage = {
   id: string;
@@ -45,7 +51,7 @@ export type Order = {
   items: CartItem[];
   totalAmount: number;
   status: OrderStatus;
-  orderDate: Timestamp | string; // Allow string for flexibility, convert to Timestamp on save
+  orderDate: Timestamp | string; 
   shippingAddress: string;
   paymentMethod?: string;
   createdBy?: string; // UID of admin if manually created
@@ -58,7 +64,7 @@ export type User = {
   email: string | null;
   name?: string | null;
   role: UserRole;
-  createdAt?: Timestamp | string | Date; // Allow multiple types for flexibility, standardize on read/write
+  createdAt?: Timestamp | string | Date; 
   id?: string; // Legacy from mock, can be phased out
 };
 
@@ -68,5 +74,3 @@ export type Category = {
   slug: string; // URL-friendly identifier
   createdAt?: Timestamp;
 };
-
-    

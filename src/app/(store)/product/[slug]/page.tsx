@@ -1,7 +1,7 @@
 
 "use client";
 
-import { use, useState, useEffect } from 'react'; // Import 'use'
+import { use, useState, useEffect } from 'react'; 
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -9,28 +9,25 @@ import type { Product } from '@/types';
 import { Star, CheckCircle, Package, ShieldCheck, Heart, Loader2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Input } from '@/components/ui/input'; // Added missing import
+import { Input } from '@/components/ui/input';
 import { ProductCard } from '@/components/store/product-card';
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast"; // Keep for non-cart toasts if needed
+import { useCart } from '@/context/cart-context'; // Import useCart
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, limit, Timestamp } from 'firebase/firestore';
 
-// Define the type for the resolved params object
 interface ResolvedPageParams {
   slug: string;
 }
 
-// Update the props type: params prop for the page is a Promise that resolves to ResolvedPageParams
 interface ProductDetailPageProps {
   params: Promise<ResolvedPageParams>;
 }
 
 export default function ProductDetailPage({ params: paramsPromise }: ProductDetailPageProps) {
-  // Use React.use to resolve the params promise.
-  // This will suspend rendering until the promise is resolved.
   const resolvedParams = use(paramsPromise);
-  const { slug } = resolvedParams; // Destructure slug from the resolved params
+  const { slug } = resolvedParams;
 
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -38,20 +35,20 @@ export default function ProductDetailPage({ params: paramsPromise }: ProductDeta
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [loading, setLoading] = useState(true); // Still useful for the async fetch operation itself
+  const [loadingProduct, setLoadingProduct] = useState(true);
   const { toast } = useToast();
+  const { addToCart } = useCart(); // Get addToCart from context
 
   useEffect(() => {
-    // This effect runs after 'slug' is resolved and available.
     const fetchProductData = async () => {
       if (!slug) {
         console.warn("ProductDetailPage: Slug is not available, cannot fetch product data.");
-        setProduct(null); // Ensure product is null if slug is missing
-        setLoading(false);
+        setProduct(null);
+        setLoadingProduct(false);
         return;
       }
 
-      setLoading(true);
+      setLoadingProduct(true);
       console.log(`ProductDetailPage: Fetching product with slug: "${slug}"`);
 
       try {
@@ -76,7 +73,7 @@ export default function ProductDetailPage({ params: paramsPromise }: ProductDeta
             const relatedQuery = query(
               productsRef,
               where("categoryId", "==", fetchedProductData.categoryId),
-              where("id", "!=", fetchedProductData.id), // Ensure it's not the same product ID
+              where("id", "!=", fetchedProductData.id), 
               limit(4)
             );
             const relatedSnapshot = await getDocs(relatedQuery);
@@ -85,7 +82,6 @@ export default function ProductDetailPage({ params: paramsPromise }: ProductDeta
               fetchedRelatedProducts.push({ id: doc.id, ...doc.data() } as Product);
             });
             setRelatedProducts(fetchedRelatedProducts);
-            console.log("ProductDetailPage: Related products fetched:", fetchedRelatedProducts.length);
           }
         } else {
           console.warn(`ProductDetailPage: Product with slug "${slug}" not found in Firestore.`);
@@ -100,31 +96,29 @@ export default function ProductDetailPage({ params: paramsPromise }: ProductDeta
           variant: "destructive",
         });
       } finally {
-        setLoading(false);
+        setLoadingProduct(false);
       }
     };
 
     fetchProductData();
-  }, [slug, toast]); // Depend on the resolved slug and toast
+  }, [slug, toast]);
 
   const handleAddToCart = () => {
     if (!product) return;
-    if (!selectedSize) {
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
       toast({ title: "Please select a size.", variant: "destructive" });
       return;
     }
-    if (!selectedColor && product.colors && product.colors.length > 0) {
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
       toast({ title: "Please select a color.", variant: "destructive" });
       return;
     }
-    console.log('Added to cart:', { ...product, selectedColor, selectedSize, quantity });
-    toast({
-      title: "Added to Cart!",
-      description: `${product.name} (${selectedSize || 'N/A'}, ${selectedColor || 'N/A'}) x ${quantity} has been added to your cart.`,
-    });
+    // Use the addToCart function from CartContext
+    addToCart(product, quantity, selectedColor, selectedSize);
+    // The toast for "Added to cart" is now handled by the CartContext itself.
   };
 
-  if (loading) {
+  if (loadingProduct) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[calc(100vh-10rem)]">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -146,9 +140,7 @@ export default function ProductDetailPage({ params: paramsPromise }: ProductDeta
     );
   }
   
-  // Ensure allImages is an array of strings
   const allImages = [product.imageUrl, ...(product.images || [])].filter(Boolean) as string[];
-
 
   return (
     <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -163,7 +155,7 @@ export default function ProductDetailPage({ params: paramsPromise }: ProductDeta
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover transition-opacity duration-300"
                 data-ai-hint="product clothing"
-                priority={currentImageIndex === 0} // Only prioritize the initially visible image
+                priority={currentImageIndex === 0}
             />
              <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-background/70 hover:bg-background rounded-full text-foreground/70 hover:text-primary">
                 <Heart className="h-6 w-6" />
@@ -197,10 +189,8 @@ export default function ProductDetailPage({ params: paramsPromise }: ProductDeta
           <h1 className="font-headline text-3xl font-bold tracking-tight sm:text-4xl">{product.name}</h1>
           <div className="flex items-center space-x-2">
             <div className="flex text-yellow-400">
-              {/* Ensure product.rating exists and is a number if you use it */}
               {[...Array(5)].map((_, i) => <Star key={i} className={`h-5 w-5 ${i < (product.rating || 0) ? 'fill-current' : ''}`} />)}
             </div>
-            {/* Ensure product.reviewCount exists and is a number if you use it */}
             <span className="text-sm text-muted-foreground">({product.reviewCount || 0} reviews)</span>
           </div>
           <p className="text-3xl font-bold text-primary">LKR {product.price.toFixed(2)}</p>
@@ -297,5 +287,3 @@ export default function ProductDetailPage({ params: paramsPromise }: ProductDeta
     </div>
   );
 }
-
-    
