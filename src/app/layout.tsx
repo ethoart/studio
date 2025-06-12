@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/context/auth-context';
-import { DynamicThemeLoader } from '@/components/theme/dynamic-theme-loader'; // Import the new component
+// Removed: import { DynamicThemeLoader } from '@/components/theme/dynamic-theme-loader';
 
 export const metadata: Metadata = {
   title: 'ARO Bazzar - Modern Fashion Store',
@@ -18,13 +18,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <DynamicThemeLoader /> {/* Add DynamicThemeLoader here */}
-        {/* Removed specific Google Font links for Inter and Playfair Display */}
+        {/* Removed: <DynamicThemeLoader /> */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* General preconnects are still fine, DynamicThemeLoader will add specific font links */}
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet" />
       </head>
-      <body className="antialiased"> {/* font-body class will be applied by Tailwind using CSS var */}
+      <body className="antialiased">
         <AuthProvider>
           {children}
           <Toaster />
