@@ -1,72 +1,135 @@
 
-"use client"; // Needs to be client for useState if adding to cart, or use server actions
+"use client";
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { mockProducts, getProductBySlug } from '@/lib/mock-data';
 import type { Product } from '@/types';
-import { Star, CheckCircle, Package, ShieldCheck, Heart } from 'lucide-react';
+import { Star, CheckCircle, Package, ShieldCheck, Heart, Loader2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { ProductCard } from '@/components/store/product-card';
 import { useToast } from "@/hooks/use-toast";
 import Link from 'next/link';
+import { db } from '@/lib/firebase';
+import { collection, query, where, getDocs, limit, Timestamp } from 'firebase/firestore';
 
 export default function ProductDetailPage({ params }: { params: { slug: string } }) {
   const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchedProduct = getProductBySlug(params.slug);
-    if (fetchedProduct) {
-      setProduct(fetchedProduct);
-      if (fetchedProduct.colors && fetchedProduct.colors.length > 0) {
-        setSelectedColor(fetchedProduct.colors[0]);
+    const fetchProductData = async () => {
+      if (!params.slug) {
+        console.error("ProductDetailPage: No slug provided in params.");
+        setLoading(false);
+        return;
       }
-      if (fetchedProduct.sizes && fetchedProduct.sizes.length > 0) {
-        setSelectedSize(fetchedProduct.sizes[0]);
-      }
-    }
-  }, [params.slug]);
+      setLoading(true);
+      console.log(`ProductDetailPage: Fetching product with slug: "${params.slug}"`);
 
-  if (!product) {
-    return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="font-headline text-2xl">Product not found</h1>
-        <Link href="/shop" className="text-primary hover:underline mt-4 inline-block">
-          Back to Shop
-        </Link>
-      </div>
-    );
-  }
+      try {
+        const productsRef = collection(db, "products");
+        const q = query(productsRef, where("slug", "==", params.slug), limit(1));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const docSnap = querySnapshot.docs[0];
+          const fetchedProductData = { id: docSnap.id, ...docSnap.data() } as Product;
+          console.log("ProductDetailPage: Product found:", fetchedProductData);
+          setProduct(fetchedProductData);
+
+          if (fetchedProductData.colors && fetchedProductData.colors.length > 0) {
+            setSelectedColor(fetchedProductData.colors[0]);
+          }
+          if (fetchedProductData.sizes && fetchedProductData.sizes.length > 0) {
+            setSelectedSize(fetchedProductData.sizes[0]);
+          }
+
+          // Fetch related products
+          if (fetchedProductData.categoryId) {
+            const relatedQuery = query(
+              productsRef,
+              where("categoryId", "==", fetchedProductData.categoryId),
+              where("id", "!=", fetchedProductData.id), // Exclude the current product
+              limit(4)
+            );
+            const relatedSnapshot = await getDocs(relatedQuery);
+            const fetchedRelatedProducts: Product[] = [];
+            relatedSnapshot.forEach(doc => {
+              fetchedRelatedProducts.push({ id: doc.id, ...doc.data() } as Product);
+            });
+            setRelatedProducts(fetchedRelatedProducts);
+            console.log("ProductDetailPage: Related products fetched:", fetchedRelatedProducts.length);
+          }
+        } else {
+          console.warn(`ProductDetailPage: Product with slug "${params.slug}" not found in Firestore.`);
+          setProduct(null);
+        }
+      } catch (error) {
+        console.error("ProductDetailPage: Error fetching product data:", error);
+        setProduct(null);
+        toast({
+          title: "Error",
+          description: "Could not load product details. Please try again later.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProductData();
+  }, [params.slug, toast]);
 
   const handleAddToCart = () => {
-    // Basic validation
+    if (!product) return;
     if (!selectedSize) {
       toast({ title: "Please select a size.", variant: "destructive" });
       return;
     }
-    if (!selectedColor) {
+    if (!selectedColor && product.colors && product.colors.length > 0) {
       toast({ title: "Please select a color.", variant: "destructive" });
       return;
     }
-    // Placeholder for actual add to cart logic
     console.log('Added to cart:', { ...product, selectedColor, selectedSize, quantity });
     toast({
       title: "Added to Cart!",
       description: `${product.name} (${selectedSize}, ${selectedColor}) x ${quantity} has been added to your cart.`,
     });
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[calc(100vh-10rem)]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
   
-  const relatedProducts = mockProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
-  const allImages = [product.imageUrl, ...(product.images || [])];
+  if (!product) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="font-headline text-3xl font-bold mb-4">Product Not Found</h1>
+        <p className="text-muted-foreground mb-8">
+          The product you are looking for does not exist or may have been removed.
+        </p>
+        <Link href="/shop">
+          <Button size="lg">Back to Shop</Button>
+        </Link>
+      </div>
+    );
+  }
+  
+  const allImages = [product.imageUrl, ...(product.images || [])].filter(Boolean);
+
 
   return (
     <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -75,12 +138,13 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
         <div className="space-y-4">
             <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg shadow-lg">
             <Image
-                src={allImages[currentImageIndex]}
+                src={allImages.length > 0 ? allImages[currentImageIndex] : "https://placehold.co/600x800.png"}
                 alt={`${product.name} - view ${currentImageIndex + 1}`}
-                fill // Use fill for responsive images
-                objectFit="cover"
-                className="transition-opacity duration-300"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover transition-opacity duration-300"
                 data-ai-hint="product clothing"
+                priority
             />
              <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-background/70 hover:bg-background rounded-full text-foreground/70 hover:text-primary">
                 <Heart className="h-6 w-6" />
@@ -100,8 +164,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                     alt={`${product.name} - thumbnail ${index + 1}`}
                     width={100}
                     height={100}
-                    objectFit="cover"
-                    className="h-full w-full"
+                    className="h-full w-full object-cover"
                     data-ai-hint="product thumbnail"
                     />
                 </button>
@@ -115,66 +178,72 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
           <h1 className="font-headline text-3xl font-bold tracking-tight sm:text-4xl">{product.name}</h1>
           <div className="flex items-center space-x-2">
             <div className="flex text-yellow-400">
-              {[...Array(5)].map((_, i) => <Star key={i} className={`h-5 w-5 ${i < 4 ? 'fill-current' : ''}`} />)}
+              {[...Array(5)].map((_, i) => <Star key={i} className={`h-5 w-5 ${i < (product.rating || 4) ? 'fill-current' : ''}`} />)}
             </div>
-            <span className="text-sm text-muted-foreground">(125 reviews)</span>
+            <span className="text-sm text-muted-foreground">({product.reviewCount || Math.floor(Math.random() * 200) + 10} reviews)</span>
           </div>
           <p className="text-3xl font-bold text-primary">LKR {product.price.toFixed(2)}</p>
           
           <Separator />
 
-          <div>
-            <h3 className="text-sm font-medium text-foreground">Color: <span className="font-semibold">{selectedColor}</span></h3>
-            <RadioGroup value={selectedColor} onValueChange={setSelectedColor} className="mt-2 flex flex-wrap gap-2">
-              {product.colors.map((color) => (
-                <RadioGroupItem key={color} value={color} id={`color-${color}`} className="sr-only" />
-                ))}
+          {product.colors && product.colors.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium text-foreground">Color: <span className="font-semibold">{selectedColor}</span></h3>
+              <RadioGroup value={selectedColor} onValueChange={setSelectedColor} className="mt-2 flex flex-wrap gap-2">
                 {product.colors.map((color) => (
-                 <Label 
-                    key={color} 
-                    htmlFor={`color-${color}`}
-                    className={`cursor-pointer rounded-md border-2 p-2 px-3 text-sm transition-all hover:border-primary
-                        ${selectedColor === color ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background'}`}
-                    style={{ backgroundColor: selectedColor === color ? undefined : color.toLowerCase() === 'white' || color.toLowerCase() === 'ivory' ? '#f8f8f8' : color.toLowerCase() }}
-                >
-                    {color}
-                </Label>
-              ))}
-            </RadioGroup>
-          </div>
+                  <RadioGroupItem key={color} value={color} id={`color-${color}`} className="sr-only" />
+                  ))}
+                  {product.colors.map((color) => (
+                  <Label 
+                      key={color} 
+                      htmlFor={`color-${color}`}
+                      className={`cursor-pointer rounded-md border-2 p-2 px-3 text-sm transition-all hover:border-primary
+                          ${selectedColor === color ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background'}`}
+                      style={{ backgroundColor: selectedColor === color ? undefined : color.toLowerCase() === 'white' || color.toLowerCase() === 'ivory' ? '#f8f8f8' : color.toLowerCase() }}
+                  >
+                      {color}
+                  </Label>
+                ))}
+              </RadioGroup>
+            </div>
+          )}
 
-          <div>
-            <h3 className="text-sm font-medium text-foreground">Size: <span className="font-semibold">{selectedSize}</span></h3>
-            <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="mt-2 flex flex-wrap gap-2">
-              {product.sizes.map((size) => (
-                <RadioGroupItem key={size} value={size} id={`size-${size}`} className="sr-only" />
-                ))}
-                 {product.sizes.map((size) => (
-                    <Label 
-                        key={size} 
-                        htmlFor={`size-${size}`}
-                        className={`cursor-pointer rounded-md border-2 p-2 px-4 text-sm transition-all hover:border-primary
-                        ${selectedSize === size ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background'}`}
-                    >
-                        {size}
-                    </Label>
-                ))}
-            </RadioGroup>
-            <Link href="#" className="mt-2 text-sm text-primary hover:underline">Size guide</Link>
-          </div>
+          {product.sizes && product.sizes.length > 0 && (
+            <div>
+                <h3 className="text-sm font-medium text-foreground">Size: <span className="font-semibold">{selectedSize}</span></h3>
+                <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="mt-2 flex flex-wrap gap-2">
+                {product.sizes.map((size) => (
+                    <RadioGroupItem key={size} value={size} id={`size-${size}`} className="sr-only" />
+                    ))}
+                    {product.sizes.map((size) => (
+                        <Label 
+                            key={size} 
+                            htmlFor={`size-${size}`}
+                            className={`cursor-pointer rounded-md border-2 p-2 px-4 text-sm transition-all hover:border-primary
+                            ${selectedSize === size ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background'}`}
+                        >
+                            {size}
+                        </Label>
+                    ))}
+                </RadioGroup>
+                <Link href="#" className="mt-2 text-sm text-primary hover:underline">Size guide</Link>
+            </div>
+          )}
+
 
           <div>
             <Label htmlFor="quantity" className="text-sm font-medium text-foreground">Quantity</Label>
             <div className="mt-1 flex items-center">
-              <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))}><span className="text-xl">-</span></Button>
-              <input 
+              <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))}><span className="text-xl leading-none align-middle">-</span></Button>
+              <Input 
                 type="number" 
                 id="quantity" 
                 value={quantity} 
                 onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value,10) || 1))}
                 className="w-16 h-10 rounded-md border border-input text-center mx-2"
+                min="1"
               />
-              <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}><span className="text-xl">+</span></Button>
+              <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}><span className="text-xl leading-none align-middle">+</span></Button>
             </div>
           </div>
 
@@ -184,7 +253,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
           
           <div>
             <h3 className="font-headline text-lg font-semibold">Product Description</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{product.description}</p>
+            <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{product.description}</p>
           </div>
 
           <div className="space-y-3 text-sm text-muted-foreground">
