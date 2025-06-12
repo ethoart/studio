@@ -21,12 +21,9 @@ export type Product = {
   reviewCount?: number; 
 };
 
-// CartItem specific fields
-// It extends Product but 'id' in CartItem can be a composite ID (productId-color-size)
-// while 'productId' would store the original product ID.
 export type CartItem = Omit<Product, 'id'> & {
-  id: string; // This will be the composite cart item ID e.g., 'product123-red-medium'
-  productId: string; // Original product ID from Firestore
+  id: string; 
+  productId: string; 
   quantity: number;
   selectedSize: string;
   selectedColor: string;
@@ -38,48 +35,49 @@ export type HomepageGalleryImage = {
   src: string;
   alt: string;
   dataAiHint?: string;
-  createdAt?: Timestamp; // For ordering
+  createdAt?: Timestamp; 
 };
 
 export type OrderStatus = 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Returned';
+export type PaymentMethod = 'Offline/Bank Transfer' | 'Cash on Delivery';
 
 export type Order = {
   id: string; // Firestore document ID
-  userId?: string | null; // UID of the user who placed the order, null for guest
+  userId?: string | null; 
   customerName: string;
   customerEmail: string;
+  customerPhone?: string; // Optional phone number
   items: CartItem[];
   totalAmount: number;
   status: OrderStatus;
-  orderDate: Timestamp | Date | string; // Allow more flexible date types for input/output
+  orderDate: Timestamp | Date | string; 
+  updatedAt?: Timestamp | Date | string; // To track status updates
   shippingAddress: string;
-  paymentMethod?: string;
-  createdBy?: string; // UID of admin if manually created
+  paymentMethod?: PaymentMethod | string; // Can be more specific or allow other strings
+  createdBy?: string; 
 };
 
 export type UserRole = 'customer' | 'admin' | 'super admin';
 
 export type User = {
-  uid: string; // Firebase Auth UID
+  uid: string; 
   email: string | null;
   name?: string | null;
   role: UserRole;
   createdAt?: Timestamp | string | Date; 
-  id?: string; // Legacy from mock, can be phased out
+  id?: string; 
 };
 
 export type Category = {
-  id: string; // Firestore document ID
+  id: string; 
   name: string;
-  slug: string; // URL-friendly identifier
+  slug: string; 
   createdAt?: Timestamp;
 };
 
-// For product detail page params promise
 export interface ResolvedPageParams {
   slug: string;
 }
 export interface ProductDetailPageParams {
   params: Promise<ResolvedPageParams>;
 }
-

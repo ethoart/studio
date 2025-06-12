@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Loader2, AlertTriangle, Package } from "lucide-react";
+import { ArrowLeft, Loader2, AlertTriangle, Package, Phone } from "lucide-react";
 import type { Order, OrderStatus, CartItem } from "@/types";
 import { db } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
@@ -20,15 +20,13 @@ import { useToast } from '@/hooks/use-toast';
 
 const orderStatusOptions: OrderStatus[] = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'];
 
-// Update props type for params to be a Promise
 interface OrderDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPageProps) {
-  // Unwrap the params promise using React.use()
   const params = use(paramsPromise);
-  const orderIdFromParams = params.id; // Store the id from resolved params
+  const orderIdFromParams = params.id; 
 
   const router = useRouter();
   const { toast } = useToast();
@@ -40,7 +38,7 @@ export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPa
 
   useEffect(() => {
     const fetchOrder = async () => {
-      if (!orderIdFromParams) { // Use the resolved id
+      if (!orderIdFromParams) { 
         setError("Order ID is missing.");
         setLoading(false);
         return;
@@ -48,7 +46,7 @@ export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPa
       setLoading(true);
       setError(null);
       try {
-        const orderDocRef = doc(db, "orders", orderIdFromParams); // Use the resolved id
+        const orderDocRef = doc(db, "orders", orderIdFromParams); 
         const orderSnap = await getDoc(orderDocRef);
 
         if (orderSnap.exists()) {
@@ -68,11 +66,10 @@ export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPa
       }
     };
     
-    // Ensure orderIdFromParams is available before fetching
     if (orderIdFromParams) {
         fetchOrder();
     }
-  }, [orderIdFromParams, toast]); // Use the resolved id in the dependency array
+  }, [orderIdFromParams, toast]); 
 
   const handleUpdateStatus = async () => {
     if (!order || !selectedStatus) {
@@ -82,8 +79,8 @@ export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPa
     setIsUpdatingStatus(true);
     try {
       const orderDocRef = doc(db, "orders", order.id);
-      await updateDoc(orderDocRef, { status: selectedStatus });
-      setOrder(prev => prev ? { ...prev, status: selectedStatus } : null);
+      await updateDoc(orderDocRef, { status: selectedStatus, updatedAt: Timestamp.now() }); // Add updatedAt
+      setOrder(prev => prev ? { ...prev, status: selectedStatus, updatedAt: Timestamp.now() } : null);
       toast({ title: "Status Updated", description: `Order status changed to ${selectedStatus}.` });
     } catch (err: any) {
       console.error("Error updating status:", err);
@@ -242,6 +239,12 @@ export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPa
                 <p>{order.customerName}</p>
                 <p className="text-muted-foreground">{order.customerEmail}</p>
               </div>
+               {order.customerPhone && (
+                <div>
+                  <Label className="font-medium flex items-center"><Phone className="mr-2 h-4 w-4" /> Phone</Label>
+                  <p className="text-muted-foreground">{order.customerPhone}</p>
+                </div>
+              )}
               <div>
                 <Label className="font-medium">Shipping Address</Label>
                 <p className="whitespace-pre-line">{order.shippingAddress}</p>
@@ -261,6 +264,10 @@ export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPa
               <div>
                 <Label className="font-medium">Order Date</Label>
                 <p>{formatDate(order.orderDate)}</p>
+              </div>
+              <div>
+                <Label className="font-medium">Last Updated</Label>
+                <p>{formatDate(order.updatedAt)}</p>
               </div>
               <div>
                 <Label className="font-medium">Payment Method</Label>

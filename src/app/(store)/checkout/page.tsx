@@ -1,30 +1,33 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2, Banknote, Truck } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCart } from '@/context/cart-context';
 import { useAuth } from '@/context/auth-context';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import type { OrderStatus, CartItem } from '@/types'; // Ensure OrderStatus is imported
+import type { OrderStatus, CartItem } from '@/types'; 
+
+type PaymentMethod = 'Offline/Bank Transfer' | 'Cash on Delivery';
 
 export default function CheckoutPage() {
   const { toast } = useToast();
   const { cartItems, getCartTotal, clearCart, loading: cartLoading } = useCart();
-  const { firebaseUser, loading: authLoading } = useAuth();
+  const { firebaseUser, user, loading: authLoading } = useAuth(); // Added 'user' for prefilling email
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('Offline/Bank Transfer');
   
-  // Form state for shipping details - simple state management for this example
   const [shippingInfo, setShippingInfo] = useState({
     firstName: '',
     lastName: '',
@@ -32,13 +35,20 @@ export default function CheckoutPage() {
     city: '',
     state: '',
     zip: '',
-    email: '', // User's email, prefill if logged in?
+    email: '', 
     phone: '',
   });
 
+  // Prefill email if user is logged in
+  useEffect(() => {
+    if (user && user.email) {
+      setShippingInfo(prev => ({ ...prev, email: user.email! }));
+    }
+  }, [user]);
+
   const subtotal = getCartTotal();
-  const shippingEstimate = cartItems.length > 0 ? 5.00 : 0; // Example
-  const taxEstimate = subtotal * 0.08; // Example
+  const shippingEstimate = cartItems.length > 0 ? 5.00 : 0;
+  const taxEstimate = subtotal * 0.08; 
   const orderTotal = subtotal + shippingEstimate + taxEstimate;
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -60,23 +70,23 @@ export default function CheckoutPage() {
         customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
         customerEmail: shippingInfo.email,
         shippingAddress: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.state} ${shippingInfo.zip}`,
-        items: cartItems.map(item => ({ ...item })), // Create a deep copy of cart items
+        customerPhone: shippingInfo.phone, // Added phone
+        items: cartItems.map(item => ({ ...item })), 
         totalAmount: orderTotal,
-        status: 'Pending' as OrderStatus, // Default status
+        status: 'Pending' as OrderStatus,
         orderDate: serverTimestamp(),
-        paymentMethod: 'Offline/Bank Transfer', // Explicitly set payment method
+        paymentMethod: selectedPaymentMethod,
       };
 
       const docRef = await addDoc(collection(db, "orders"), orderData);
       
       toast({
         title: "Order Placed Successfully!",
-        description: `Your Order ID is ${docRef.id}. Please follow payment instructions.`,
+        description: `Your Order ID is ${docRef.id}. ${selectedPaymentMethod === 'Cash on Delivery' ? 'Please prepare cash for delivery.' : 'Please follow payment instructions.'}`,
       });
       
-      clearCart(); // Clear the cart after successful order
-      // Optionally reset form: setShippingInfo({ firstName: '', ...});
-      router.push('/'); // Redirect to homepage or an order success page
+      clearCart();
+      router.push('/'); 
 
     } catch (error) {
       console.error("Error placing order:", error);
@@ -103,7 +113,6 @@ export default function CheckoutPage() {
       <h1 className="font-headline text-3xl font-bold tracking-tight sm:text-4xl mb-10 text-center">Checkout</h1>
       
       <div className="grid grid-cols-1 gap-x-12 gap-y-10 md:grid-cols-2 lg:grid-cols-5">
-        {/* Shipping Information Form - takes 3/5 width on lg screens */}
         <form onSubmit={handleSubmit} className="space-y-6 lg:col-span-3">
           <div>
             <h2 className="font-headline text-xl font-semibold mb-4">Shipping Information</h2>
@@ -140,9 +149,43 @@ export default function CheckoutPage() {
               <Input id="email" name="email" type="email" required value={shippingInfo.email} onChange={handleInputChange} disabled={isProcessing} />
             </div>
             <div className="mt-4">
-              <Label htmlFor="phone">Phone Number (Optional)</Label>
-              <Input id="phone" name="phone" type="tel" value={shippingInfo.phone} onChange={handleInputChange} disabled={isProcessing} />
+              <Label htmlFor="phone">Phone Number (Required for COD)</Label>
+              <Input id="phone" name="phone" type="tel" value={shippingInfo.phone} onChange={handleInputChange} disabled={isProcessing} required={selectedPaymentMethod === 'Cash on Delivery'} />
             </div>
+          </div>
+          
+          <Separator />
+
+          <div>
+             <h2 className="font-headline text-xl font-semibold mb-4">Payment Method</h2>
+             <RadioGroup
+                value={selectedPaymentMethod}
+                onValueChange={(value: string) => setSelectedPaymentMethod(value as PaymentMethod)}
+                className="space-y-3"
+             >
+                <Label
+                  htmlFor="bank-transfer"
+                  className={`flex items-center space-x-3 rounded-md border p-4 cursor-pointer transition-colors hover:border-primary ${selectedPaymentMethod === 'Offline/Bank Transfer' ? 'border-primary ring-2 ring-primary' : 'border-border'}`}
+                >
+                  <RadioGroupItem value="Offline/Bank Transfer" id="bank-transfer" />
+                  <Banknote className="h-6 w-6 text-primary" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Bank Transfer</span>
+                    <span className="text-xs text-muted-foreground">Pay via direct bank deposit.</span>
+                  </div>
+                </Label>
+                <Label
+                  htmlFor="cod"
+                  className={`flex items-center space-x-3 rounded-md border p-4 cursor-pointer transition-colors hover:border-primary ${selectedPaymentMethod === 'Cash on Delivery' ? 'border-primary ring-2 ring-primary' : 'border-border'}`}
+                >
+                  <RadioGroupItem value="Cash on Delivery" id="cod" />
+                  <Truck className="h-6 w-6 text-primary" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">Cash on Delivery (COD)</span>
+                    <span className="text-xs text-muted-foreground">Pay with cash when your order arrives.</span>
+                  </div>
+                </Label>
+             </RadioGroup>
           </div>
           
           <Separator />
@@ -155,11 +198,10 @@ export default function CheckoutPage() {
           
           <Button type="submit" size="lg" className="w-full" disabled={isProcessing || cartItems.length === 0}>
             {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {isProcessing ? 'Processing Order...' : 'Place Order & Pay Offline'}
+            {isProcessing ? 'Processing Order...' : `Place Order & Pay via ${selectedPaymentMethod === 'Cash on Delivery' ? 'COD' : 'Bank Transfer'}`}
           </Button>
         </form>
 
-        {/* Order Summary & Payment Instructions - takes 2/5 width on lg screens */}
         <div className="rounded-lg border bg-card p-6 shadow-sm lg:col-span-2 h-fit sticky top-24">
           <h2 className="font-headline text-xl font-semibold mb-6">Order Summary</h2>
           {cartItems.length > 0 ? (
@@ -200,34 +242,47 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <Separator className="my-6" />
-          
-          <h2 className="font-headline text-lg font-semibold mb-3">Offline Payment Instructions</h2>
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Important!</AlertTitle>
-            <AlertDescription>
-              This is an offline payment method. After placing your order, please use the details below to complete your payment.
-            </AlertDescription>
-          </Alert>
-          
-          <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-            <p>
-              To complete your purchase, please make a payment to:
-            </p>
-            <ul className="list-disc list-inside space-y-1 bg-secondary p-3 rounded-md">
-              <li><strong>Bank Name:</strong> ARO Bazzar Bank</li>
-              <li><strong>Account Name:</strong> ARO Bazzar Store</li>
-              <li><strong>Account Number:</strong> 123-456-7890</li>
-              <li><strong>Reference:</strong> Your Order ID (will be provided after placing order).</li>
-            </ul>
-            <p>
-              Once payment is confirmed, we'll process your order.
-            </p>
-          </div>
+          {selectedPaymentMethod === 'Offline/Bank Transfer' && (
+            <>
+              <Separator className="my-6" />
+              <h2 className="font-headline text-lg font-semibold mb-3">Bank Transfer Instructions</h2>
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Important!</AlertTitle>
+                <AlertDescription>
+                  After placing your order, please use the details below to complete your payment.
+                </AlertDescription>
+              </Alert>
+              <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+                <p>To complete your purchase, please make a payment to:</p>
+                <ul className="list-disc list-inside space-y-1 bg-secondary p-3 rounded-md">
+                  <li><strong>Bank Name:</strong> ARO Bazzar Bank</li>
+                  <li><strong>Account Name:</strong> ARO Bazzar Store</li>
+                  <li><strong>Account Number:</strong> 123-456-7890</li>
+                  <li><strong>Reference:</strong> Your Order ID (will be provided after placing order).</li>
+                </ul>
+                <p>Once payment is confirmed, we'll process your order.</p>
+              </div>
+            </>
+          )}
+          {selectedPaymentMethod === 'Cash on Delivery' && (
+             <>
+              <Separator className="my-6" />
+              <h2 className="font-headline text-lg font-semibold mb-3">Cash on Delivery</h2>
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Prepare for Delivery!</AlertTitle>
+                <AlertDescription>
+                  Please have the exact amount of <strong className="text-foreground">LKR {orderTotal.toFixed(2)}</strong> ready for our delivery personnel.
+                </AlertDescription>
+              </Alert>
+               <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+                <p>Our team will contact you on the provided phone number (<strong className="text-foreground">{shippingInfo.phone || "Not provided"}</strong>) before attempting delivery.</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
   );
 }
-
