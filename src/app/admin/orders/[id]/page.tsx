@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react'; // Import 'use'
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -19,7 +20,16 @@ import { useToast } from '@/hooks/use-toast';
 
 const orderStatusOptions: OrderStatus[] = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'];
 
-export default function OrderDetailPage({ params }: { params: { id: string } }) {
+// Update props type for params to be a Promise
+interface OrderDetailPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPageProps) {
+  // Unwrap the params promise using React.use()
+  const params = use(paramsPromise);
+  const orderIdFromParams = params.id; // Store the id from resolved params
+
   const router = useRouter();
   const { toast } = useToast();
   const [order, setOrder] = useState<Order | null>(null);
@@ -30,7 +40,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
 
   useEffect(() => {
     const fetchOrder = async () => {
-      if (!params.id) {
+      if (!orderIdFromParams) { // Use the resolved id
         setError("Order ID is missing.");
         setLoading(false);
         return;
@@ -38,7 +48,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
       setLoading(true);
       setError(null);
       try {
-        const orderDocRef = doc(db, "orders", params.id);
+        const orderDocRef = doc(db, "orders", orderIdFromParams); // Use the resolved id
         const orderSnap = await getDoc(orderDocRef);
 
         if (orderSnap.exists()) {
@@ -57,8 +67,12 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
         setLoading(false);
       }
     };
-    fetchOrder();
-  }, [params.id, toast]);
+    
+    // Ensure orderIdFromParams is available before fetching
+    if (orderIdFromParams) {
+        fetchOrder();
+    }
+  }, [orderIdFromParams, toast]); // Use the resolved id in the dependency array
 
   const handleUpdateStatus = async () => {
     if (!order || !selectedStatus) {
@@ -292,3 +306,4 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
     </div>
   );
 }
+
