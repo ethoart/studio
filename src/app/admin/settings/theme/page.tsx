@@ -8,13 +8,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import type { ThemeSettings, HSLColor, ColorSetting, FontOption } from "@/types";
+import type { ThemeSettings, HSLColor, FontOption } from "@/types";
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { doc, getDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore'; // Added deleteDoc
+import { Loader2, AlertTriangle, RotateCcw } from 'lucide-react'; // Added RotateCcw
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"; // Added AlertDialog components
 
-const THEME_COLLECTION_PATH = "site_settings"; // Changed from THEME_DOC_PATH
-const THEME_DOC_ID = "theme"; // Changed to be simpler and act as the document ID
+const THEME_COLLECTION_PATH = "site_settings";
+const THEME_DOC_ID = "theme";
 
 const initialColors: ThemeSettings['colors'] = {
   background: { h: 0, s: 0, l: 96.1 },
@@ -63,6 +74,7 @@ export default function ThemeSettingsPage() {
   const [themeSettings, setThemeSettings] = useState<ThemeSettings>(defaultThemeSettings);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -70,11 +82,10 @@ export default function ThemeSettingsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const themeDocRef = doc(db, THEME_COLLECTION_PATH, THEME_DOC_ID); // Use updated path
+      const themeDocRef = doc(db, THEME_COLLECTION_PATH, THEME_DOC_ID);
       const docSnap = await getDoc(themeDocRef);
       if (docSnap.exists()) {
         const data = docSnap.data() as ThemeSettings;
-        // Merge with defaults to ensure all fields are present
         setThemeSettings({
             ...defaultThemeSettings,
             ...data,
@@ -88,9 +99,8 @@ export default function ThemeSettingsPage() {
             }
         });
       } else {
-        // No settings found, use defaults. They will be saved on first "Save Changes".
         setThemeSettings(defaultThemeSettings);
-        toast({ title: "No Theme Found", description: "Default theme settings loaded. Save to create custom settings.", variant: "default" });
+        // Do not toast here on initial load if not found, as it might be intentional.
       }
     } catch (err: any) {
       console.error("Error fetching theme settings:", err);
@@ -135,21 +145,39 @@ export default function ThemeSettingsPage() {
     setIsSaving(true);
     setError(null);
     try {
-      const themeDocRef = doc(db, THEME_COLLECTION_PATH, THEME_DOC_ID); // Use updated path
+      const themeDocRef = doc(db, THEME_COLLECTION_PATH, THEME_DOC_ID);
       const settingsToSave = {
         ...themeSettings,
         updatedAt: serverTimestamp(),
       };
-      delete settingsToSave.id; // Don't save the id field within the document
+      delete settingsToSave.id; 
 
       await setDoc(themeDocRef, settingsToSave, { merge: true });
       toast({ title: "Theme Settings Saved", description: "Your theme changes have been successfully saved." });
-    } catch (err: any) {
-      console.error("Error saving theme settings:", err);
+    } catch (err: any) { // Corrected line: added opening brace
       setError(`Failed to save theme settings: ${err.message}`);
       toast({ title: "Saving Error", description: `Could not save theme: ${err.message}`, variant: "destructive" });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleResetToDefaults = async () => {
+    setIsResetting(true);
+    setError(null);
+    try {
+      const themeDocRef = doc(db, THEME_COLLECTION_PATH, THEME_DOC_ID);
+      await deleteDoc(themeDocRef);
+      toast({ title: "Theme Reset", description: "Theme has been reset to factory defaults. The page will now reload with default settings." });
+      // After deleting, fetchThemeSettings will load the defaultThemeSettings state
+      // because the document won't exist.
+      fetchThemeSettings(); 
+    } catch (err: any) {
+      console.error("Error resetting theme:", err);
+      setError(`Failed to reset theme: ${err.message}`);
+      toast({ title: "Reset Error", description: `Could not reset theme: ${err.message}`, variant: "destructive" });
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -179,7 +207,39 @@ export default function ThemeSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-headline text-3xl font-bold">Theme Customization</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="font-headline text-3xl font-bold">Theme Customization</h1>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" disabled={isSaving || isLoading || isResetting}>
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Reset to Factory Defaults
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action will delete your current theme settings from the database. 
+                The website will revert to its original default theme. This cannot be undone, 
+                but you can reconfigure your theme afterwards.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleResetToDefaults}
+                className="bg-destructive hover:bg-destructive/90"
+                disabled={isResetting}
+              >
+                {isResetting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Yes, Reset Theme
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+
       {error && (
         <Card className="border-destructive bg-destructive/10">
           <CardHeader><CardTitle className="text-destructive flex items-center"><AlertTriangle className="mr-2 h-5 w-5" />Error</CardTitle></CardHeader>
@@ -204,7 +264,7 @@ export default function ThemeSettingsPage() {
                     min="0" max="360"
                     value={themeSettings.colors[name]?.h ?? ''}
                     onChange={(e) => handleColorChange(name, 'h', e.target.value)}
-                    disabled={isSaving}
+                    disabled={isSaving || isResetting}
                   />
                 </div>
                 <div>
@@ -215,7 +275,7 @@ export default function ThemeSettingsPage() {
                     min="0" max="100"
                     value={themeSettings.colors[name]?.s ?? ''}
                     onChange={(e) => handleColorChange(name, 's', e.target.value)}
-                    disabled={isSaving}
+                    disabled={isSaving || isResetting}
                   />
                 </div>
                 <div>
@@ -226,7 +286,7 @@ export default function ThemeSettingsPage() {
                     min="0" max="100"
                     value={themeSettings.colors[name]?.l ?? ''}
                     onChange={(e) => handleColorChange(name, 'l', e.target.value)}
-                    disabled={isSaving}
+                    disabled={isSaving || isResetting}
                   />
                 </div>
                 <div
@@ -252,7 +312,7 @@ export default function ThemeSettingsPage() {
               <Select
                 value={themeSettings.fonts.bodyFamily}
                 onValueChange={(value) => handleFontChange('bodyFamily', value)}
-                disabled={isSaving}
+                disabled={isSaving || isResetting}
               >
                 <SelectTrigger id="bodyFont"><SelectValue placeholder="Select body font" /></SelectTrigger>
                 <SelectContent>
@@ -267,7 +327,7 @@ export default function ThemeSettingsPage() {
               <Select
                 value={themeSettings.fonts.headlineFamily}
                 onValueChange={(value) => handleFontChange('headlineFamily', value)}
-                disabled={isSaving}
+                disabled={isSaving || isResetting}
               >
                 <SelectTrigger id="headlineFont"><SelectValue placeholder="Select headline font" /></SelectTrigger>
                 <SelectContent>
@@ -282,7 +342,7 @@ export default function ThemeSettingsPage() {
       </Card>
       
       <CardFooter className="border-t pt-6">
-        <Button onClick={handleSaveChanges} disabled={isSaving || isLoading}>
+        <Button onClick={handleSaveChanges} disabled={isSaving || isLoading || isResetting}>
           {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Save Changes
         </Button>
