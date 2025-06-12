@@ -14,7 +14,6 @@ import {
   Store,
   LineChart,
   Home,
-  Palette, // Will be unused but keeping icon import for now
   PlusCircle, 
   ListOrdered, 
   Settings2, 
@@ -29,7 +28,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarGroup,
-  SidebarGroupLabel
 } from '@/components/ui/sidebar'; 
 
 const adminNavItems = [
@@ -58,7 +56,6 @@ const adminNavItems = [
     subItems: [
       { href: '/admin/settings/homepage', label: 'Homepage Gallery', icon: Home },
       { href: '/admin/settings/homepage-features', label: 'Homepage Features', icon: ThumbsUp },
-      // Removed Theme link: { href: '/admin/settings/theme', label: 'Theme', icon: Palette }, 
     ]
   },
   { href: '/admin/settings', label: 'General Settings', icon: Settings },
@@ -132,7 +129,6 @@ export function AdminSidebar() {
                 <span className="group-data-[collapsible=icon]:hidden">Visit Site</span>
             </SidebarMenuButton>
         </Link>
-        {/* Logout functionality should be handled by the Header or a context */}
         <SidebarMenuButton tooltip="Logout" className="justify-start w-full" disabled> 
           <LogOut className="h-5 w-5" />
           <span className="group-data-[collapsible=icon]:hidden">Logout</span>

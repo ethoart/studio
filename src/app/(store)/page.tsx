@@ -7,7 +7,7 @@ import { ImageGallery } from '@/components/store/image-gallery';
 import { ProductCard } from '@/components/store/product-card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight, ShoppingBag, Shirt, Zap, ShieldCheck } from 'lucide-react'; 
+import { ArrowRight, ShoppingBag, Zap, ShieldCheck, Shirt } from 'lucide-react'; 
 import type { Product, HomepageFeatureItem } from '@/types';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, limit, Timestamp } from 'firebase/firestore';
@@ -92,10 +92,10 @@ export default function HomePage() {
   const ProductListSkeleton = () => (
     <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
       {[...Array(4)].map((_, i) => (
-        <div key={i} className="space-y-3 p-2 border border-transparent rounded-lg">
-          <Skeleton className="h-[350px] w-full sm:h-[400px] md:h-[450px] rounded-md" />
-          <Skeleton className="h-5 w-3/4 mx-auto" />
-          <Skeleton className="h-5 w-1/2 mx-auto" />
+        <div key={i} className="space-y-3">
+          <Skeleton className="h-[380px] w-full bg-secondary" /> {/* Lighter skeleton */}
+          <Skeleton className="h-5 w-3/4 mx-auto bg-secondary" />
+          <Skeleton className="h-5 w-1/2 mx-auto bg-secondary" />
         </div>
       ))}
     </div>
@@ -105,10 +105,10 @@ export default function HomePage() {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       {[...Array(3)].map((_, i) => (
         <div key={i} className="p-6 text-center">
-          <Skeleton className="h-10 w-10 mx-auto mb-4 rounded-full" />
-          <Skeleton className="h-6 w-3/4 mb-3 mx-auto" />
-          <Skeleton className="h-4 w-full mb-1 mx-auto" />
-          <Skeleton className="h-4 w-5/6 mx-auto" />
+          <Skeleton className="h-10 w-10 mx-auto mb-4 rounded-full bg-secondary" />
+          <Skeleton className="h-6 w-3/4 mb-3 mx-auto bg-secondary" />
+          <Skeleton className="h-4 w-full mb-1 mx-auto bg-secondary" />
+          <Skeleton className="h-4 w-5/6 mx-auto bg-secondary" />
         </div>
       ))}
     </div>
@@ -117,20 +117,20 @@ export default function HomePage() {
   const featureIcons = [Shirt, Zap, ShieldCheck];
 
   return (
-    <div className="space-y-20 md:space-y-28 lg:space-y-36">
+    <div className="space-y-24 md:space-y-32 lg:space-y-40"> {/* Increased spacing */}
       <ImageGallery />
 
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight">Featured Collection</h2>
-          <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
-            Handpicked styles that define elegance and quality. Discover your next favorite piece.
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="text-center mb-16 md:mb-20"> {/* Increased margin bottom */}
+          <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Featured Collection</h2>
+          <p className="mt-4 text-base text-muted-foreground max-w-lg mx-auto">
+            Curated pieces that embody modern elegance and exceptional quality.
           </p>
         </div>
         {loadingFeatured ? (
           <ProductListSkeleton />
         ) : featuredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8"> {/* Increased gap y */}
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -138,33 +138,33 @@ export default function HomePage() {
         ) : (
           <div className="text-center py-10">
             <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No featured products available at the moment.</p>
+            <p className="text-muted-foreground">No featured products available.</p>
           </div>
         )}
-        <div className="mt-12 md:mt-16 text-center">
+        <div className="mt-16 md:mt-20 text-center"> {/* Increased margin top */}
           <Link href="/shop">
-            <Button size="lg" variant="outline" className="group text-base px-8 py-3 rounded-md border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-              Shop All Products <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            <Button size="lg" variant="outline" className="group text-base px-10 py-3 rounded-none border-primary text-primary hover:bg-primary hover:text-primary-foreground font-medium">
+              Shop All <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
         </div>
       </section>
 
-      <section className="bg-secondary py-16 md:py-24"> {/* Changed from bg-secondary/30 */}
+      <section className="bg-secondary py-20 md:py-28"> {/* Solid, light gray background */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight mb-12 md:mb-16">
+          <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-16 md:mb-20">
             Why Choose ARO Bazzar?
           </h2>
           {loadingWhyChooseUs ? (
             <WhyChooseUsSkeleton />
           ) : whyChooseUsItems.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16"> {/* Increased gap */}
               {whyChooseUsItems.map((item, index) => {
                 const IconComponent = featureIcons[index % featureIcons.length] || Shirt; 
                 return (
-                  <div key={item.id} className="p-6 text-center">
+                  <div key={item.id} className="p-4 text-center">
                     <IconComponent className="h-10 w-10 mx-auto mb-5 text-primary" strokeWidth={1.5}/>
-                    <h3 className="font-headline text-xl lg:text-2xl font-medium mb-3">{item.title}</h3>
+                    <h3 className="font-headline text-xl lg:text-2xl font-semibold mb-3 text-foreground">{item.title}</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
                   </div>
                 );
@@ -172,7 +172,7 @@ export default function HomePage() {
             </div>
           ) : (
              <div className="p-6">
-              <h3 className="font-headline text-xl font-semibold mb-2">Configure in CMS</h3>
+              <h3 className="font-headline text-xl font-semibold mb-2 text-foreground">Configure in CMS</h3>
               <p className="text-muted-foreground text-sm">
                 Add items to the &quot;Why Choose Us&quot; section from the admin panel under Storefront Settings &gt; Homepage Features.
               </p>
@@ -182,16 +182,16 @@ export default function HomePage() {
       </section>
       
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight">New Arrivals</h2>
-          <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
-            The latest trends and timeless pieces, freshly added to our curated collection.
+        <div className="text-center mb-16 md:mb-20">
+          <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground">New Arrivals</h2>
+          <p className="mt-4 text-base text-muted-foreground max-w-lg mx-auto">
+            Discover the latest additions to our curated collection of fashion essentials.
           </p>
         </div>
         {loadingNewArrivals ? (
           <ProductListSkeleton />
         ) : newArrivals.length > 0 ? (
-          <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
             {newArrivals.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -199,7 +199,7 @@ export default function HomePage() {
         ) : (
            <div className="text-center py-10">
             <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No new arrivals to display right now.</p>
+            <p className="text-muted-foreground">No new arrivals to display.</p>
           </div>
         )}
       </section>

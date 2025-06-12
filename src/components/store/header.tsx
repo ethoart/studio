@@ -36,7 +36,7 @@ export function Header() {
   const { user, firebaseUser, isAdminUser, loading: authLoading } = useAuth();
   const { cartItems, loading: cartContextLoading } = useCart(); 
   const { toast } = useToast();
-  const [isSearchOpen, setIsSearchOpen] = React.useState(false); // Mobile search
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isDesktopSearchOpen, setIsDesktopSearchOpen] = React.useState(false);
 
   const loading = authLoading || cartContextLoading; 
@@ -55,17 +55,16 @@ export function Header() {
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm opacity-100">
+    <header className="sticky top-0 z-50 w-full border-b bg-white opacity-100 shadow-none"> {/* bg-white directly, shadow-none for flatter look */}
       <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Mobile Menu Trigger (Left) */}
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden mr-2">
+            <Button variant="ghost" size="icon" className="md:hidden mr-2 text-foreground hover:bg-secondary">
               <Menu className="h-6 w-6" />
               <span className="sr-only">Toggle menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[320px] p-6 bg-white">
+          <SheetContent side="left" className="w-[300px] sm:w-[320px] p-6 bg-white border-r-0 shadow-lg"> {/* Solid white sheet */}
             <nav className="flex flex-col space-y-3 pt-6">
               {navLinks.map((link) => (
                  <SheetClose asChild key={link.href}>
@@ -73,7 +72,7 @@ export function Header() {
                     href={link.href}
                     className={cn(
                       "text-base font-medium transition-colors hover:text-primary pb-2 border-b border-transparent hover:border-primary/50",
-                      pathname === link.href ? "text-primary border-primary/50" : "text-foreground/80"
+                      pathname === link.href ? "text-primary border-primary/50" : "text-foreground" // Text will be black
                     )}
                   >
                     {link.label}
@@ -82,19 +81,19 @@ export function Header() {
               ))}
               <div className="mt-6 border-t pt-6 space-y-3">
                  <SheetClose asChild>
-                   <Button variant="ghost" onClick={() => { setIsSearchOpen(true); }} className="w-full justify-start text-base text-foreground/80 hover:text-primary">
+                   <Button variant="ghost" onClick={() => { setIsSearchOpen(true); }} className="w-full justify-start text-base text-foreground hover:text-primary">
                      <Search className="mr-2 h-5 w-5" /> Search
                    </Button>
                  </SheetClose>
                 {!loading && firebaseUser && (
                   <>
                     <SheetClose asChild>
-                      <Link href="/account" className="flex items-center p-2 text-base font-medium text-foreground/80 hover:text-primary">
+                      <Link href="/account" className="flex items-center p-2 text-base font-medium text-foreground hover:text-primary">
                         <User className="mr-2 h-5 w-5" /> Account
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
-                      <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-base text-red-600 hover:text-red-700 font-medium">
+                      <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-base text-destructive hover:bg-destructive/10 font-medium">
                         <LogOut className="mr-2 h-5 w-5" /> Logout
                       </Button>
                     </SheetClose>
@@ -102,7 +101,7 @@ export function Header() {
                 )}
                  {!loading && !firebaseUser && (
                    <SheetClose asChild>
-                      <Link href="/login" className="flex items-center p-2 text-base font-medium text-foreground/80 hover:text-primary">
+                      <Link href="/login" className="flex items-center p-2 text-base font-medium text-foreground hover:text-primary">
                         <User className="mr-2 h-5 w-5" /> Login/Register
                       </Link>
                     </SheetClose>
@@ -112,30 +111,28 @@ export function Header() {
           </SheetContent>
         </Sheet>
 
-        {/* Logo (Centered on mobile, Left on desktop) */}
         <div className="flex-1 md:flex-none">
           <Link href="/" className="flex items-center justify-center md:justify-start">
             <Image
               src="https://raw.githubusercontent.com/ethoart/ARO-Bazzar-NEXT-JS/main/logo%20pngs/Untitled-2.png"
               alt="ARO Bazzar Logo"
-              width={123} 
-              height={40} 
+              width={130} 
+              height={43} 
               className="object-contain" 
-              style={{ objectFit: 'contain', width: 'auto', height: '40px' }} 
+              style={{ objectFit: 'contain', width: 'auto', height: '43px' }} // Increased size
               priority
             />
           </Link>
         </div>
 
-        {/* Desktop Navigation (Centered) */}
         <nav className="hidden md:flex flex-1 justify-center items-center space-x-6 lg:space-x-8">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-medium tracking-wide transition-colors hover:text-primary",
-                pathname === link.href ? "text-primary" : "text-foreground/70"
+                "text-sm font-medium tracking-wide transition-colors hover:text-primary", // Primary will be black
+                pathname === link.href ? "text-primary" : "text-foreground/80" // Slightly lighter for inactive
               )}
             >
               {link.label}
@@ -143,14 +140,13 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Icons (Right) */}
         <div className="flex items-center space-x-2 sm:space-x-3">
-          <Button variant="ghost" size="icon" onClick={() => setIsDesktopSearchOpen(!isDesktopSearchOpen)} className="hidden md:inline-flex">
+          <Button variant="ghost" size="icon" onClick={() => setIsDesktopSearchOpen(!isDesktopSearchOpen)} className="hidden md:inline-flex text-foreground hover:bg-secondary">
             <Search className="h-5 w-5" />
             <span className="sr-only">Search</span>
           </Button>
           <Link href="/cart" aria-label="Shopping Cart">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-secondary">
               <ShoppingCart className="h-5 w-5" />
               {cartItemCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
@@ -163,27 +159,27 @@ export function Header() {
           {!loading && firebaseUser ? (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="My Account">
+                <Button variant="ghost" size="icon" aria-label="My Account" className="text-foreground hover:bg-secondary">
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-white">
-                <DropdownMenuLabel>Hi, {user?.name?.split(' ')[0] || 'User'}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <Link href="/account"><DropdownMenuItem>Profile</DropdownMenuItem></Link>
-                <Link href="/account/orders"><DropdownMenuItem>Orders</DropdownMenuItem></Link>
+              <DropdownMenuContent align="end" className="w-48 bg-white border-border shadow-lg"> {/* Solid white dropdown */}
+                <DropdownMenuLabel className="text-foreground">Hi, {user?.name?.split(' ')[0] || 'User'}</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-border" />
+                <Link href="/account"><DropdownMenuItem className="text-foreground hover:bg-secondary">Profile</DropdownMenuItem></Link>
+                <Link href="/account/orders"><DropdownMenuItem className="text-foreground hover:bg-secondary">Orders</DropdownMenuItem></Link>
                 {isAdminUser && (
-                    <Link href="/admin"><DropdownMenuItem className="text-primary font-semibold"><Shield className="mr-2 h-4 w-4" />Admin Panel</DropdownMenuItem></Link>
+                    <Link href="/admin"><DropdownMenuItem className="text-primary font-semibold hover:bg-secondary"><Shield className="mr-2 h-4 w-4" />Admin Panel</DropdownMenuItem></Link>
                 )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 focus:bg-red-50/50">
+                <DropdownMenuSeparator className="bg-border"/>
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive hover:bg-destructive/10">
                   <LogOut className="mr-2 h-4 w-4" /> Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : !loading ? (
             <Link href="/login" aria-label="Login or Register">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="text-foreground hover:bg-secondary">
                 <User className="h-5 w-5" />
               </Button>
             </Link>
@@ -195,20 +191,18 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Search Overlay - Solid Background */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-[100] bg-background md:hidden" onClick={() => setIsSearchOpen(false)}>
-          <div className="absolute top-1/4 left-1/2 w-[90%] max-w-md -translate-x-1/2 p-4 bg-white border shadow-xl rounded-lg" onClick={(e) => e.stopPropagation()}>
-            <Input type="search" placeholder="Search products..." className="w-full h-12 text-lg bg-input" autoFocus />
-            <Button variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => setIsSearchOpen(false)}> <LogOut className="rotate-180" /> </Button>
+        <div className="fixed inset-0 z-[100] bg-white md:hidden" onClick={() => setIsSearchOpen(false)}> {/* Solid white overlay */}
+          <div className="absolute top-1/4 left-1/2 w-[90%] max-w-md -translate-x-1/2 p-4 bg-white border border-border shadow-xl rounded-lg" onClick={(e) => e.stopPropagation()}>
+            <Input type="search" placeholder="Search products..." className="w-full h-12 text-lg bg-background border-input text-foreground focus:border-primary" autoFocus />
+            <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-muted-foreground hover:text-foreground" onClick={() => setIsSearchOpen(false)}> <LogOut className="rotate-180" /> </Button>
           </div>
         </div>
       )}
-      {/* Desktop Search Dropdown */}
       {isDesktopSearchOpen && (
-         <div className="hidden md:block absolute top-full left-0 w-full bg-white border-t shadow-lg z-40">
+         <div className="hidden md:block absolute top-full left-0 w-full bg-white border-t border-border shadow-lg z-40"> {/* Solid white search dropdown */}
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-center">
-                <Input type="search" placeholder="Search products..." className="w-full max-w-lg h-11 bg-input" autoFocus onBlur={() => setIsDesktopSearchOpen(false)}/>
+                <Input type="search" placeholder="Search products..." className="w-full max-w-lg h-11 bg-background border-input text-foreground focus:border-primary" autoFocus onBlur={() => setIsDesktopSearchOpen(false)}/>
             </div>
          </div>
       )}

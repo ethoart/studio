@@ -3,53 +3,49 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-
-interface ProductCardProps {
-  product: Product;
-}
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'; // Removed CardTitle
 
 export function ProductCard({ product }: ProductCardProps) {
   const productLink = product.slug ? `/product/${product.slug}` : `/product/not-found`; 
 
   return (
-    <Card className="group overflow-hidden rounded-md border border-border hover:shadow-lg transition-shadow duration-300 flex flex-col h-full bg-card"> {/* Changed border-border/30 to border-border */}
+    <Card className="group overflow-hidden rounded-none border-none shadow-none flex flex-col h-full bg-transparent"> {/* No border, no radius, no shadow for extreme minimalism */}
       <CardHeader className="p-0 relative">
-        <Link href={productLink} className="block aspect-[3/4] w-full overflow-hidden rounded-t-md">
+        <Link href={productLink} className="block aspect-[3/4] w-full overflow-hidden">
           <Image
             src={product.imageUrl || 'https://placehold.co/400x533/f0f0f0/333333.png?text=Image+Not+Available'}
             alt={product.name}
             width={400}
             height={533}
-            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+            className="object-cover w-full h-full group-hover:opacity-90 transition-opacity duration-300" // Subtle hover effect
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             data-ai-hint="fashion product clothing"
             onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 console.error(`Error loading image for ${product.name}: ${target.src}`);
-                // target.srcset = 'https://placehold.co/400x533/f0f0f0/333333.png?text=Error+Loading'; 
               }
             }
           />
         </Link>
       </CardHeader>
-      <CardContent className="p-3 sm:p-4 flex-grow flex flex-col justify-between">
+      <CardContent className="p-3 sm:p-4 text-center flex-grow flex flex-col justify-between">
         <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1 line-clamp-1">{product.categoryName || 'Uncategorized'}</p>
+          {/* Optional: Category name could be removed for more minimalism, or kept very subtle */}
+          {/* <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1 line-clamp-1">{product.categoryName || 'Uncategorized'}</p> */}
           <Link href={productLink}>
-            <h3 className="font-body text-base font-medium leading-snug mb-1.5 hover:text-primary transition-colors duration-200 line-clamp-2">
+            <h3 className="font-body text-base font-medium leading-snug mb-1.5 text-foreground hover:text-primary/80 transition-colors duration-200 line-clamp-2">
               {product.name}
             </h3>
           </Link>
         </div>
-        <p className="text-lg font-semibold text-foreground mt-1">
+        <p className="text-md font-semibold text-foreground mt-1"> {/* Slightly smaller price */}
           LKR {product.price.toFixed(2)}
         </p>
       </CardContent>
-      <CardFooter className="p-3 sm:p-4 pt-0 border-t mt-auto">
+      <CardFooter className="p-3 sm:p-4 pt-0 mt-auto">
         <Link href={productLink} className="w-full">
-          <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors duration-200 font-medium text-sm py-2.5 h-auto">
-            View Product
+          <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors duration-200 font-medium text-sm py-2.5 h-auto rounded-none"> {/* No radius */}
+            View Details
           </Button>
         </Link>
       </CardFooter>

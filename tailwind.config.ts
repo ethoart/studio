@@ -11,8 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['var(--font-body-family)', 'Inter', 'sans-serif'], // Use CSS var, fallback to Inter
-        headline: ['var(--font-headline-family)', '"Playfair Display"', 'serif'], // Use CSS var, fallback to Playfair
+        body: ['var(--font-body-family)', 'Inter', 'sans-serif'],
+        headline: ['var(--font-headline-family)', 'Inter', 'sans-serif'], // Changed to Inter
         code: ['monospace'],
       },
       colors: {
@@ -47,7 +47,7 @@ export default {
           foreground: 'hsl(var(--destructive-foreground))',
         },
         border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
+        input: 'hsl(var(--input))', // Input border color
         ring: 'hsl(var(--ring))',
         chart: {
           '1': 'hsl(var(--chart-1))',
