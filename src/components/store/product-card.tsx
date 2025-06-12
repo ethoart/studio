@@ -12,10 +12,8 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const productLink = product.slug ? `/product/${product.slug}` : `/product/not-found`; 
 
-  // console.log(`ProductCard: Rendering product "${product.name}", Image URL: "${product.imageUrl}"`);
-
   return (
-    <Card className="group overflow-hidden rounded-md border border-border/50 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full bg-card">
+    <Card className="group overflow-hidden rounded-md border border-border/30 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full bg-card"> {/* Border made more subtle */}
       <CardHeader className="p-0 relative">
         <Link href={productLink} className="block aspect-[3/4] w-full overflow-hidden rounded-t-md">
           <Image
@@ -32,11 +30,10 @@ export function ProductCard({ product }: ProductCardProps) {
                 // target.srcset = 'https://placehold.co/400x533/f0f0f0/333333.png?text=Error+Loading'; 
               }
             }
-            // unoptimized={product.imageUrl && !product.imageUrl.startsWith('https') ? true : undefined}
           />
         </Link>
       </CardHeader>
-      <CardContent className="p-3 sm:p-4 flex-grow flex flex-col justify-between"> {/* Adjusted padding */}
+      <CardContent className="p-3 sm:p-4 flex-grow flex flex-col justify-between">
         <div>
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1 line-clamp-1">{product.categoryName || 'Uncategorized'}</p>
           <Link href={productLink}>
@@ -49,7 +46,7 @@ export function ProductCard({ product }: ProductCardProps) {
           LKR {product.price.toFixed(2)}
         </p>
       </CardContent>
-      <CardFooter className="p-3 sm:p-4 pt-0 border-t mt-auto"> {/* Adjusted padding */}
+      <CardFooter className="p-3 sm:p-4 pt-0 border-t mt-auto">
         <Link href={productLink} className="w-full">
           <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors duration-200 font-medium text-sm py-2.5 h-auto">
             View Product

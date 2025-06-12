@@ -14,11 +14,11 @@ import {
   Store,
   LineChart,
   Home,
-  Palette,
+  Palette, // Will be unused but keeping icon import for now
   PlusCircle, 
   ListOrdered, 
   Settings2, 
-  ThumbsUp, // Added icon for Homepage Features
+  ThumbsUp,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -58,7 +58,7 @@ const adminNavItems = [
     subItems: [
       { href: '/admin/settings/homepage', label: 'Homepage Gallery', icon: Home },
       { href: '/admin/settings/homepage-features', label: 'Homepage Features', icon: ThumbsUp },
-      { href: '/admin/settings/theme', label: 'Theme', icon: Palette }, 
+      // Removed Theme link: { href: '/admin/settings/theme', label: 'Theme', icon: Palette }, 
     ]
   },
   { href: '/admin/settings', label: 'General Settings', icon: Settings },
