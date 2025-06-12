@@ -19,12 +19,13 @@ import { db, auth } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { useRouter } from "next/navigation";
 import type { OrderStatus, CartItem } from "@/types";
+import { sendNewOrderAdminNotificationEmail, type NewOrderAdminNotificationEmailInput } from '@/ai/flows/send-new-order-admin-email-flow';
 
 const orderFormSchema = z.object({
   customerName: z.string().min(2, "Customer name must be at least 2 characters"),
   customerEmail: z.string().email("Invalid email address"),
   shippingAddress: z.string().min(10, "Shipping address must be at least 10 characters"),
-  itemsSummary: z.string().min(10, "Please describe the items in the order"), // Simple summary for now
+  itemsSummary: z.string().min(10, "Please describe the items in the order"), 
   totalAmount: z.coerce.number().positive("Total amount must be a positive number"),
   status: z.enum(['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'], {
     required_error: "Please select an order status.",
@@ -46,7 +47,7 @@ export default function NewOrderPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const currentUser = auth.currentUser; // Get current Firebase auth user
+  const currentUser = auth.currentUser; 
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderFormSchema),
@@ -62,19 +63,17 @@ export default function NewOrderPage() {
         return;
     }
     try {
-      // For manually added items, we'll store them as a descriptive string.
-      // In a more advanced system, you'd link to actual product IDs.
       const orderItems: CartItem[] = [{
-        id: 'manual',
+        id: 'manual-' + Date.now(), // More unique ID for manual item
+        productId: 'manual',
         name: 'Manually Added Items',
         description: data.itemsSummary,
-        price: data.totalAmount, // Assuming totalAmount covers these items
+        price: data.totalAmount, 
         quantity: 1,
         selectedSize: 'N/A',
         selectedColor: 'N/A',
         category: 'Manual Entry',
-        imageUrl: 'https://placehold.co/48x48.png', // Placeholder
-        // sizes and colors arrays can be empty for this manual item
+        imageUrl: 'https://placehold.co/48x48.png', 
         sizes: [],
         colors: [],
       }];
@@ -83,22 +82,42 @@ export default function NewOrderPage() {
         customerName: data.customerName,
         customerEmail: data.customerEmail,
         shippingAddress: data.shippingAddress,
-        items: orderItems, // Store the manually described items
+        items: orderItems, 
         totalAmount: data.totalAmount,
         status: data.status as OrderStatus,
         orderDate: serverTimestamp(),
-        // For manually created orders, userId might be the admin's UID or null if it's for a non-registered customer
-        userId: null, // Or potentially admin's UID: currentUser.uid
-        // You might want to add a field like 'createdBy: currentUser.uid' to track who created it
+        userId: null, 
         createdBy: currentUser.uid,
         paymentMethod: 'Manual/Offline'
       };
 
-      await addDoc(collection(db, "orders"), orderData);
+      const docRef = await addDoc(collection(db, "orders"), orderData);
       toast({
         title: "Order Created",
         description: `Order for ${data.customerName} has been successfully added.`,
       });
+      
+      // Trigger admin notification email (stub)
+      const adminEmailInput: NewOrderAdminNotificationEmailInput = {
+        orderId: docRef.id,
+        customerName: orderData.customerName,
+        totalAmount: orderData.totalAmount,
+        itemsSummary: data.itemsSummary.substring(0,100) + (data.itemsSummary.length > 100 ? '...' : ''),
+        orderLink: `${window.location.origin}/admin/orders/${docRef.id}`,
+        customerEmail: orderData.customerEmail,
+      };
+
+      try {
+        const adminEmailResult = await sendNewOrderAdminNotificationEmail(adminEmailInput);
+        if (adminEmailResult.success) {
+          toast({ title: "Admin Notified (Simulated)", description: "Admin new order notification simulated."});
+        } else {
+          toast({ title: "Admin Notification Failed (Simulated)", description: adminEmailResult.message, variant: "destructive" });
+        }
+      } catch (adminEmailError: any) {
+         toast({ title: "Admin Notification Error (Simulated)", description: `Could not simulate admin email: ${adminEmailError.message}`, variant: "destructive" });
+      }
+
       router.push("/admin/orders");
     } catch (error) {
       console.error("Error creating order:", error);

@@ -11,12 +11,14 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Loader2, AlertTriangle, Package, Phone, Receipt } from "lucide-react";
-import type { Order, OrderStatus } from "@/types";
+import { ArrowLeft, Loader2, AlertTriangle, Package, Phone, Receipt, Mail } from "lucide-react";
+import type { Order, OrderStatus, CartItem } from "@/types";
 import { db } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { sendOrderStatusUpdateEmail, type OrderStatusUpdateEmailInput } from '@/ai/flows/send-order-update-email-flow';
+
 
 const orderStatusOptions: OrderStatus[] = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'];
 
@@ -80,8 +82,40 @@ export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPa
     try {
       const orderDocRef = doc(db, "orders", order.id);
       await updateDoc(orderDocRef, { status: selectedStatus, updatedAt: Timestamp.now() }); 
-      setOrder(prev => prev ? { ...prev, status: selectedStatus, updatedAt: Timestamp.now() } : null);
+      
+      const updatedOrder = { ...order, status: selectedStatus, updatedAt: Timestamp.now() };
+      setOrder(updatedOrder as Order); // Cast as Order because Timestamp.now() is compatible
       toast({ title: "Status Updated", description: `Order status changed to ${selectedStatus}.` });
+
+      // Trigger email notification (stub)
+      if (updatedOrder.customerEmail && selectedStatus !== order.status) { // Only send if status actually changed
+        const itemsSummary = updatedOrder.items.length > 0
+          ? `${updatedOrder.items[0].name}${updatedOrder.items.length > 1 ? ` and ${updatedOrder.items.length - 1} other item(s)` : ''}`
+          : 'Your recent order';
+        
+        const emailInput: OrderStatusUpdateEmailInput = {
+          orderId: updatedOrder.id,
+          customerEmail: updatedOrder.customerEmail,
+          customerName: updatedOrder.customerName,
+          newStatus: selectedStatus,
+          itemsSummary: itemsSummary,
+          totalAmount: updatedOrder.totalAmount,
+          // trackingLink: selectedStatus === 'Shipped' ? 'https://example.com/track/' + updatedOrder.id : undefined, // Placeholder
+          // orderLink: `https://yourstore.com/account/orders/${updatedOrder.id}` // Placeholder
+        };
+        
+        try {
+            const emailResult = await sendOrderStatusUpdateEmail(emailInput);
+            if (emailResult.success) {
+                toast({ title: "Customer Notified (Simulated)", description: `An email simulation for status '${selectedStatus}' was successful.`});
+            } else {
+                toast({ title: "Notification Failed (Simulated)", description: emailResult.message, variant: "destructive" });
+            }
+        } catch (emailError: any) {
+            toast({ title: "Notification Error (Simulated)", description: `Could not simulate email: ${emailError.message}`, variant: "destructive" });
+        }
+      }
+
     } catch (err: any) {
       console.error("Error updating status:", err);
       toast({ title: "Error", description: `Could not update status: ${err.message}`, variant: "destructive" });
@@ -257,7 +291,7 @@ export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPa
               <div>
                 <Label className="font-medium">Customer</Label>
                 <p>{order.customerName}</p>
-                <p className="text-muted-foreground">{order.customerEmail}</p>
+                <p className="text-muted-foreground flex items-center gap-1"><Mail className="h-3 w-3" />{order.customerEmail}</p>
               </div>
                {order.customerPhone && (
                 <div>

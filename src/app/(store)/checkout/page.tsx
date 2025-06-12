@@ -17,6 +17,7 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import type { OrderStatus, CartItem } from '@/types'; 
+import { sendNewOrderAdminNotificationEmail, type NewOrderAdminNotificationEmailInput } from '@/ai/flows/send-new-order-admin-email-flow';
 
 type PaymentMethod = 'Offline/Bank Transfer' | 'Cash on Delivery';
 
@@ -43,12 +44,20 @@ export default function CheckoutPage() {
     if (user && user.email) {
       setShippingInfo(prev => ({ ...prev, email: user.email! }));
     }
+     if (user && user.name) { // Pre-fill name if available from auth
+      const nameParts = user.name.split(' ');
+      setShippingInfo(prev => ({
+        ...prev,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || ''
+      }));
+    }
   }, [user]);
 
   const subtotal = getCartTotal();
-  const shippingEstimate = cartItems.length > 0 ? 350.00 : 0; // Updated shipping charge
-  const taxAmount = cartItems.length > 0 ? 35.00 : 0; // Flat tax of LKR 35
-  const codCharge = selectedPaymentMethod === 'Cash on Delivery' && cartItems.length > 0 ? 100.00 : 0; // Updated COD charge
+  const shippingEstimate = cartItems.length > 0 ? 350.00 : 0; 
+  const taxAmount = cartItems.length > 0 ? 35.00 : 0; 
+  const codCharge = selectedPaymentMethod === 'Cash on Delivery' && cartItems.length > 0 ? 100.00 : 0; 
   const orderTotal = subtotal + shippingEstimate + taxAmount + codCharge;
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -89,6 +98,28 @@ export default function CheckoutPage() {
         description: `Your Order ID is ${docRef.id}. ${selectedPaymentMethod === 'Cash on Delivery' ? 'Please prepare cash for delivery.' : 'Please follow payment instructions.'}`,
       });
       
+      // Trigger admin notification email (stub)
+      const itemsSummary = cartItems.map(item => `${item.quantity}x ${item.name}`).join(', ');
+      const adminEmailInput: NewOrderAdminNotificationEmailInput = {
+        orderId: docRef.id,
+        customerName: orderData.customerName,
+        totalAmount: orderData.totalAmount,
+        itemsSummary: itemsSummary.substring(0, 100) + (itemsSummary.length > 100 ? '...' : ''), // Keep summary brief
+        orderLink: `${window.location.origin}/admin/orders/${docRef.id}`, // Construct link
+        customerEmail: orderData.customerEmail,
+      };
+
+      try {
+        const adminEmailResult = await sendNewOrderAdminNotificationEmail(adminEmailInput);
+        if (adminEmailResult.success) {
+          toast({ title: "Admin Notified (Simulated)", description: "Admin new order notification simulated."});
+        } else {
+          toast({ title: "Admin Notification Failed (Simulated)", description: adminEmailResult.message, variant: "destructive" });
+        }
+      } catch (adminEmailError: any) {
+         toast({ title: "Admin Notification Error (Simulated)", description: `Could not simulate admin email: ${adminEmailError.message}`, variant: "destructive" });
+      }
+
       clearCart();
       router.push('/'); 
 
