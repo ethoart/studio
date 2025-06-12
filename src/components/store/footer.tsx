@@ -25,7 +25,7 @@ export function Footer() {
           <div>
             <h4 className="text-md font-semibold uppercase tracking-wider text-foreground/80">Connect</h4>
             <div className="mt-4 flex space-x-4">
-              <a href="#" target="_blank" rel="noopener noreferrer" className="text-foreground/70 hover:text-primary">
+              <a href="https://web.facebook.com/profile.php?id=100076276321366" target="_blank" rel="noopener noreferrer" className="text-foreground/70 hover:text-primary">
                 <Facebook className="h-6 w-6" />
                 <span className="sr-only">Facebook</span>
               </a>
