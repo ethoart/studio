@@ -9,6 +9,7 @@ import type { Product } from '@/types';
 import { Star, CheckCircle, Package, ShieldCheck, Heart, Loader2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Input } from '@/components/ui/input'; // Added missing import
 import { ProductCard } from '@/components/store/product-card';
 import { useToast } from "@/hooks/use-toast";
 import Link from 'next/link';
@@ -75,7 +76,7 @@ export default function ProductDetailPage({ params: paramsPromise }: ProductDeta
             const relatedQuery = query(
               productsRef,
               where("categoryId", "==", fetchedProductData.categoryId),
-              where("id", "!=", fetchedProductData.id),
+              where("id", "!=", fetchedProductData.id), // Ensure it's not the same product ID
               limit(4)
             );
             const relatedSnapshot = await getDocs(relatedQuery);
