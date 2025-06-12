@@ -62,8 +62,8 @@ export function Header() {
           <Image
             src="https://raw.githubusercontent.com/ethoart/ARO-Bazzar-NEXT-JS/main/logo%20pngs/Untitled-2.png"
             alt="ARO Bazzar Logo"
-            width={120} // Adjust width as needed
-            height={40} // Adjust height as needed
+            width={90} // Adjusted width
+            height={30} // Adjusted height
             className="object-contain" // Ensures the image scales correctly
             priority
           />
