@@ -7,7 +7,7 @@ import { ImageGallery } from '@/components/store/image-gallery';
 import { ProductCard } from '@/components/store/product-card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight, ShoppingBag, ThumbsUp } from 'lucide-react';
+import { ArrowRight, ShoppingBag, Shirt, Zap, ShieldCheck } from 'lucide-react'; // Updated icons
 import type { Product, HomepageFeatureItem } from '@/types';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, limit, Timestamp } from 'firebase/firestore';
@@ -27,7 +27,7 @@ export default function HomePage() {
       setLoadingFeatured(true);
       try {
         const productsRef = collection(db, "products");
-        const q = query(productsRef, orderBy("name", "asc"), limit(4));
+        const q = query(productsRef, orderBy("name", "asc"), limit(4)); // Example: order by name
         const querySnapshot = await getDocs(q);
         const products: Product[] = [];
         querySnapshot.forEach((doc) => {
@@ -70,7 +70,7 @@ export default function HomePage() {
       setLoadingWhyChooseUs(true);
       try {
         const itemsRef = collection(db, WHY_CHOOSE_US_PATH);
-        const q = query(itemsRef, orderBy("createdAt", "asc"), limit(3)); // Fetch up to 3 items
+        const q = query(itemsRef, orderBy("createdAt", "asc"), limit(3));
         const querySnapshot = await getDocs(q);
         const items: HomepageFeatureItem[] = [];
         querySnapshot.forEach((doc) => {
@@ -92,10 +92,10 @@ export default function HomePage() {
   const ProductListSkeleton = () => (
     <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
       {[...Array(4)].map((_, i) => (
-        <div key={i} className="space-y-2">
-          <Skeleton className="h-[300px] w-full sm:h-[350px] md:h-[400px]" />
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-1/2" />
+        <div key={i} className="space-y-3 p-2 border border-transparent rounded-lg">
+          <Skeleton className="h-[350px] w-full sm:h-[400px] md:h-[450px] rounded-md" />
+          <Skeleton className="h-5 w-3/4 mx-auto" />
+          <Skeleton className="h-5 w-1/2 mx-auto" />
         </div>
       ))}
     </div>
@@ -104,25 +104,28 @@ export default function HomePage() {
   const WhyChooseUsSkeleton = () => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="p-6 bg-background rounded-lg shadow-sm">
-          <Skeleton className="h-6 w-3/4 mb-3" />
-          <Skeleton className="h-4 w-full mb-1" />
-          <Skeleton className="h-4 w-5/6" />
+        <div key={i} className="p-6 text-center">
+          <Skeleton className="h-10 w-10 mx-auto mb-4 rounded-full" />
+          <Skeleton className="h-6 w-3/4 mb-3 mx-auto" />
+          <Skeleton className="h-4 w-full mb-1 mx-auto" />
+          <Skeleton className="h-4 w-5/6 mx-auto" />
         </div>
       ))}
     </div>
   );
 
+  // Example icons for "Why Choose Us" - can be mapped or made dynamic from CMS later
+  const featureIcons = [Shirt, Zap, ShieldCheck];
 
   return (
-    <div className="space-y-12 md:space-y-16 lg:space-y-20">
-      <ImageGallery />
+    <div className="space-y-16 md:space-y-24 lg:space-y-32">
+      <ImageGallery /> {/* This will now be the prominent hero banner */}
 
       <section className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight">Featured Collection</h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Explore our handpicked selection of must-have items.
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight">Featured Collection</h2>
+          <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
+            Handpicked styles that define elegance and quality. Discover your next favorite piece.
           </p>
         </div>
         {loadingFeatured ? (
@@ -139,37 +142,40 @@ export default function HomePage() {
             <p className="text-muted-foreground">No featured products available at the moment.</p>
           </div>
         )}
-        <div className="mt-12 text-center">
+        <div className="mt-12 md:mt-16 text-center">
           <Link href="/shop">
-            <Button size="lg" variant="outline" className="group">
+            <Button size="lg" variant="outline" className="group text-base px-8 py-3 rounded-md border-primary text-primary hover:bg-primary hover:text-primary-foreground">
               Shop All Products <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
         </div>
       </section>
 
-      <section className="bg-secondary py-16 md:py-24">
+      <section className="bg-secondary/50 py-16 md:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight mb-6">
+          <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight mb-12 md:mb-16">
             Why Choose ARO Bazzar?
           </h2>
           {loadingWhyChooseUs ? (
             <WhyChooseUsSkeleton />
           ) : whyChooseUsItems.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {whyChooseUsItems.map((item) => (
-                <div key={item.id} className="p-6 bg-background rounded-lg shadow-sm">
-                  {/* Icon can be added here if stored/mapped, e.g. <ThumbsUp className="h-8 w-8 mx-auto mb-3 text-primary" /> */}
-                  <h3 className="font-headline text-xl font-semibold mb-2">{item.title}</h3>
-                  <p className="text-muted-foreground text-sm">{item.description}</p>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+              {whyChooseUsItems.map((item, index) => {
+                const IconComponent = featureIcons[index % featureIcons.length] || Shirt; // Cycle through icons
+                return (
+                  <div key={item.id} className="p-6 text-center">
+                    <IconComponent className="h-10 w-10 mx-auto mb-5 text-primary" strokeWidth={1.5}/>
+                    <h3 className="font-headline text-xl lg:text-2xl font-medium mb-3">{item.title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
+                  </div>
+                );
+              })}
             </div>
           ) : (
-             <div className="p-6 bg-background rounded-lg shadow-sm">
+             <div className="p-6">
               <h3 className="font-headline text-xl font-semibold mb-2">Configure in CMS</h3>
               <p className="text-muted-foreground text-sm">
-                Add items to the &quot;Why Choose Us&quot; section from the admin panel.
+                Add items to the &quot;Why Choose Us&quot; section from the admin panel under Storefront Settings &gt; Homepage Features.
               </p>
             </div>
           )}
@@ -177,10 +183,10 @@ export default function HomePage() {
       </section>
       
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-        <div className="text-center mb-12">
-          <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight">New Arrivals</h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Check out the latest additions to our collection.
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight">New Arrivals</h2>
+          <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
+            The latest trends and timeless pieces, freshly added to our curated collection.
           </p>
         </div>
         {loadingNewArrivals ? (
