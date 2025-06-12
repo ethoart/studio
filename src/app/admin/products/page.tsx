@@ -28,32 +28,46 @@ export default function ProductsPage() {
     setError(null);
     try {
       const productsCollectionRef = collection(db, "products");
-      const q = query(productsCollectionRef, orderBy("createdAt", "desc"));
+      console.log("Fetching products from collection path:", productsCollectionRef.path);
+
+      // Temporarily remove orderBy to simplify the query for debugging
+      // const q = query(productsCollectionRef, orderBy("createdAt", "desc"));
+      const q = query(productsCollectionRef); // Simplified query
+      
       const querySnapshot = await getDocs(q);
       const fetchedProducts: Product[] = [];
       querySnapshot.forEach((docSnap) => {
         const data = docSnap.data();
         fetchedProducts.push({
           id: docSnap.id,
-          name: data.name || 'N/A',
-          price: data.price || 0,
-          categoryName: data.categoryName || 'Uncategorized', // Use categoryName
+          name: data.name || 'N/A (Missing Name)',
+          price: typeof data.price === 'number' ? data.price : 0,
+          categoryName: data.categoryName || 'Uncategorized',
           categoryId: data.categoryId || '',
           imageUrl: data.imageUrl || 'https://placehold.co/48x48.png',
-          stock: data.stock === undefined ? 0 : data.stock, // Default stock to 0 if undefined
-          sizes: data.sizes || [],
-          colors: data.colors || [],
+          stock: typeof data.stock === 'number' ? data.stock : 0,
+          sizes: Array.isArray(data.sizes) ? data.sizes : [],
+          colors: Array.isArray(data.colors) ? data.colors : [],
           description: data.description || '',
           slug: data.slug || '',
-          createdAt: data.createdAt as Timestamp,
+          createdAt: data.createdAt as Timestamp, // Assume it exists for now, handle if undefined
           updatedAt: data.updatedAt as Timestamp,
-        } as Product); // Added 'as Product' for stricter typing
+        } as Product);
       });
       setProducts(fetchedProducts);
+      console.log(`Fetched ${fetchedProducts.length} products. Sample raw data (first 3):`, fetchedProducts.slice(0,3).map(p => ({id: p.id, name: p.name, createdAt: p.createdAt})));
+
     } catch (err: any) {
-      console.error("Error fetching products:", err);
-      setError(`Failed to fetch products. ${err.message}. Please check Firestore permissions and ensure the 'products' collection exists.`);
-      toast({ title: "Error", description: "Could not fetch products.", variant: "destructive" });
+      console.error("Error fetching products in CMS:", err);
+      let detailedMessage = `Failed to fetch products. ${err.message || 'Unknown error'}.`;
+      if (err.code) {
+        detailedMessage += ` Firebase error code: ${err.code}.`;
+      }
+      if (err.code === 'failed-precondition' && err.message.includes('index')) {
+        detailedMessage += " This often means you need to create a Firestore index. Check the browser console for a link to create it.";
+      }
+      setError(detailedMessage);
+      toast({ title: "Error Fetching Products", description: detailedMessage, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -67,7 +81,7 @@ export default function ProductsPage() {
     try {
       await deleteDoc(doc(db, "products", productId));
       toast({ title: "Success", description: `Product "${productName}" deleted successfully.` });
-      fetchProducts(); // Refresh the list
+      fetchProducts(); 
     } catch (err: any) {
       console.error("Error deleting product:", err);
       toast({ title: "Error", description: `Could not delete product: ${err.message}`, variant: "destructive" });
@@ -122,10 +136,10 @@ export default function ProductsPage() {
         <CardContent>
           {products.length === 0 ? (
             <div className="text-center py-10">
-              <p className="text-muted-foreground">No products found.</p>
+              <p className="text-muted-foreground">No products found in the 'products' collection in Firestore.</p>
               <p className="text-sm text-muted-foreground mt-2">
-                Add your first product by clicking the &quot;Add Product&quot; button.
-                Ensure products in Firestore have `createdAt` timestamps for correct ordering.
+                Add your first product by clicking the &quot;Add Product&quot; button above.
+                If you have products in Firestore, ensure your security rules allow listing and reading them, and check the browser console for errors.
               </p>
             </div>
           ) : (
