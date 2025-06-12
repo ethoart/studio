@@ -17,6 +17,8 @@ export type Product = {
   sku?: string; // Stock Keeping Unit
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
+  rating?: number; // Optional rating
+  reviewCount?: number; // Optional review count
 };
 
 export type CartItem = Product & {
@@ -43,7 +45,7 @@ export type Order = {
   items: CartItem[];
   totalAmount: number;
   status: OrderStatus;
-  orderDate: Timestamp | string;
+  orderDate: Timestamp | string; // Allow string for flexibility, convert to Timestamp on save
   shippingAddress: string;
   paymentMethod?: string;
   createdBy?: string; // UID of admin if manually created
@@ -56,7 +58,7 @@ export type User = {
   email: string | null;
   name?: string | null;
   role: UserRole;
-  createdAt?: Timestamp | string;
+  createdAt?: Timestamp | string | Date; // Allow multiple types for flexibility, standardize on read/write
   id?: string; // Legacy from mock, can be phased out
 };
 
@@ -66,3 +68,5 @@ export type Category = {
   slug: string; // URL-friendly identifier
   createdAt?: Timestamp;
 };
+
+    

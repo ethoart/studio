@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { use, useState, useEffect } from 'react'; // Import 'use'
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -15,29 +15,47 @@ import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, limit, Timestamp } from 'firebase/firestore';
 
-export default function ProductDetailPage({ params }: { params: { slug: string } }) {
+// Define the type for the resolved params object
+interface ResolvedPageParams {
+  slug: string;
+}
+
+// Update the props type: params prop for the page is a Promise that resolves to ResolvedPageParams
+interface ProductDetailPageProps {
+  params: Promise<ResolvedPageParams>;
+}
+
+export default function ProductDetailPage({ params: paramsPromise }: ProductDetailPageProps) {
+  // Use React.use to resolve the params promise.
+  // This will suspend rendering until the promise is resolved.
+  const resolvedParams = use(paramsPromise);
+  const { slug } = resolvedParams; // Destructure slug from the resolved params
+
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Still useful for the async fetch operation itself
   const { toast } = useToast();
 
   useEffect(() => {
+    // This effect runs after 'slug' is resolved and available.
     const fetchProductData = async () => {
-      if (!params.slug) {
-        console.error("ProductDetailPage: No slug provided in params.");
+      if (!slug) {
+        console.warn("ProductDetailPage: Slug is not available, cannot fetch product data.");
+        setProduct(null); // Ensure product is null if slug is missing
         setLoading(false);
         return;
       }
+
       setLoading(true);
-      console.log(`ProductDetailPage: Fetching product with slug: "${params.slug}"`);
+      console.log(`ProductDetailPage: Fetching product with slug: "${slug}"`);
 
       try {
         const productsRef = collection(db, "products");
-        const q = query(productsRef, where("slug", "==", params.slug), limit(1));
+        const q = query(productsRef, where("slug", "==", slug), limit(1));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
@@ -53,12 +71,11 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             setSelectedSize(fetchedProductData.sizes[0]);
           }
 
-          // Fetch related products
           if (fetchedProductData.categoryId) {
             const relatedQuery = query(
               productsRef,
               where("categoryId", "==", fetchedProductData.categoryId),
-              where("id", "!=", fetchedProductData.id), // Exclude the current product
+              where("id", "!=", fetchedProductData.id),
               limit(4)
             );
             const relatedSnapshot = await getDocs(relatedQuery);
@@ -70,7 +87,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             console.log("ProductDetailPage: Related products fetched:", fetchedRelatedProducts.length);
           }
         } else {
-          console.warn(`ProductDetailPage: Product with slug "${params.slug}" not found in Firestore.`);
+          console.warn(`ProductDetailPage: Product with slug "${slug}" not found in Firestore.`);
           setProduct(null);
         }
       } catch (error) {
@@ -87,7 +104,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     };
 
     fetchProductData();
-  }, [params.slug, toast]);
+  }, [slug, toast]); // Depend on the resolved slug and toast
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -102,7 +119,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     console.log('Added to cart:', { ...product, selectedColor, selectedSize, quantity });
     toast({
       title: "Added to Cart!",
-      description: `${product.name} (${selectedSize}, ${selectedColor}) x ${quantity} has been added to your cart.`,
+      description: `${product.name} (${selectedSize || 'N/A'}, ${selectedColor || 'N/A'}) x ${quantity} has been added to your cart.`,
     });
   };
 
@@ -119,7 +136,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="font-headline text-3xl font-bold mb-4">Product Not Found</h1>
         <p className="text-muted-foreground mb-8">
-          The product you are looking for does not exist or may have been removed.
+          The product you are looking for (slug: {slug || "unknown"}) does not exist or may have been removed.
         </p>
         <Link href="/shop">
           <Button size="lg">Back to Shop</Button>
@@ -128,7 +145,8 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     );
   }
   
-  const allImages = [product.imageUrl, ...(product.images || [])].filter(Boolean);
+  // Ensure allImages is an array of strings
+  const allImages = [product.imageUrl, ...(product.images || [])].filter(Boolean) as string[];
 
 
   return (
@@ -144,7 +162,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-cover transition-opacity duration-300"
                 data-ai-hint="product clothing"
-                priority
+                priority={currentImageIndex === 0} // Only prioritize the initially visible image
             />
              <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-background/70 hover:bg-background rounded-full text-foreground/70 hover:text-primary">
                 <Heart className="h-6 w-6" />
@@ -178,9 +196,11 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
           <h1 className="font-headline text-3xl font-bold tracking-tight sm:text-4xl">{product.name}</h1>
           <div className="flex items-center space-x-2">
             <div className="flex text-yellow-400">
-              {[...Array(5)].map((_, i) => <Star key={i} className={`h-5 w-5 ${i < (product.rating || 4) ? 'fill-current' : ''}`} />)}
+              {/* Ensure product.rating exists and is a number if you use it */}
+              {[...Array(5)].map((_, i) => <Star key={i} className={`h-5 w-5 ${i < (product.rating || 0) ? 'fill-current' : ''}`} />)}
             </div>
-            <span className="text-sm text-muted-foreground">({product.reviewCount || Math.floor(Math.random() * 200) + 10} reviews)</span>
+            {/* Ensure product.reviewCount exists and is a number if you use it */}
+            <span className="text-sm text-muted-foreground">({product.reviewCount || 0} reviews)</span>
           </div>
           <p className="text-3xl font-bold text-primary">LKR {product.price.toFixed(2)}</p>
           
@@ -276,3 +296,5 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     </div>
   );
 }
+
+    
