@@ -117,40 +117,43 @@ export default function HomePage() {
   const featureIcons = [Shirt, Zap, ShieldCheck];
 
   return (
-    <div className="space-y-16 md:space-y-20 lg:space-y-24"> 
+    // Removed space-y- from here, padding will be per-section
+    <div> 
       <ImageGallery />
 
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12"> 
-        <div className="text-center mb-12 md:mb-16"> 
-          <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Featured Collection</h2>
-          <p className="mt-4 text-base text-muted-foreground max-w-lg mx-auto">
-            Curated pieces that embody modern elegance and exceptional quality.
-          </p>
-        </div>
-        {loadingFeatured ? (
-          <ProductListSkeleton />
-        ) : featuredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8"> 
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+      <section className="bg-background py-12 md:py-16 lg:py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 md:mb-16"> 
+            <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Featured Collection</h2>
+            <p className="mt-4 text-base text-muted-foreground max-w-lg mx-auto">
+              Curated pieces that embody modern elegance and exceptional quality.
+            </p>
           </div>
-        ) : (
-          <div className="text-center py-10">
-            <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No featured products available.</p>
+          {loadingFeatured ? (
+            <ProductListSkeleton />
+          ) : featuredProducts.length > 0 ? (
+            <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8"> 
+              {featuredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10">
+              <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No featured products available.</p>
+            </div>
+          )}
+          <div className="mt-12 md:mt-16 text-center"> 
+            <Link href="/shop">
+              <Button size="lg" variant="default" className="group text-base px-10 py-3 rounded-none font-medium transition-transform duration-200 hover:scale-105">
+                Shop All <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
           </div>
-        )}
-        <div className="mt-12 md:mt-16 text-center"> 
-          <Link href="/shop">
-            <Button size="lg" variant="default" className="group text-base px-10 py-3 rounded-none font-medium">
-              Shop All <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </Link>
         </div>
       </section>
 
-      <section className="bg-secondary py-16 md:py-20"> 
+      <section className="bg-secondary py-16 md:py-20 lg:py-24"> 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-12 md:mb-16">
             Why Choose ARO Bazzar?
@@ -162,8 +165,8 @@ export default function HomePage() {
               {whyChooseUsItems.map((item, index) => {
                 const IconComponent = featureIcons[index % featureIcons.length] || Shirt; 
                 return (
-                  <div key={item.id} className="p-4 text-center">
-                    <IconComponent className="h-10 w-10 mx-auto mb-5 text-primary" strokeWidth={1.5}/>
+                  <div key={item.id} className="p-4 text-center group">
+                    <IconComponent className="h-10 w-10 mx-auto mb-5 text-primary transition-transform duration-200 group-hover:scale-110" strokeWidth={1.5}/>
                     <h3 className="font-headline text-xl lg:text-2xl font-semibold mb-3 text-foreground">{item.title}</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
                   </div>
@@ -181,27 +184,29 @@ export default function HomePage() {
         </div>
       </section>
       
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground">New Arrivals</h2>
-          <p className="mt-4 text-base text-muted-foreground max-w-lg mx-auto">
-            Discover the latest additions to our curated collection of fashion essentials.
-          </p>
+      <section className="bg-background py-12 md:py-16 lg:py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground">New Arrivals</h2>
+            <p className="mt-4 text-base text-muted-foreground max-w-lg mx-auto">
+              Discover the latest additions to our curated collection of fashion essentials.
+            </p>
+          </div>
+          {loadingNewArrivals ? (
+            <ProductListSkeleton />
+          ) : newArrivals.length > 0 ? (
+            <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+              {newArrivals.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+             <div className="text-center py-10">
+              <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No new arrivals to display.</p>
+            </div>
+          )}
         </div>
-        {loadingNewArrivals ? (
-          <ProductListSkeleton />
-        ) : newArrivals.length > 0 ? (
-          <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-            {newArrivals.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        ) : (
-           <div className="text-center py-10">
-            <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No new arrivals to display.</p>
-          </div>
-        )}
       </section>
     </div>
   );

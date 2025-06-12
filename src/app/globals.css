@@ -28,13 +28,13 @@ body {
     --popover-h: var(--card-h); --popover-s: var(--card-s); --popover-l: var(--card-l);
     --popover-foreground-h: var(--card-foreground-h); --popover-foreground-s: var(--card-foreground-s); --popover-foreground-l: var(--card-foreground-l);
 
-    /* Secondary: Light Gray (for subtle backgrounds or dividers) - e.g., #CCCCCC */
-    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 80%; /* #CCCCCC Light Gray */
+    /* Secondary: Light Gray / Ash (for alternating section backgrounds) - e.g., #F5F5F5 */
+    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 96.1%; /* #F5F5F5 Light Gray / Ash */
     /* Secondary Foreground (Text on Secondary): Pure Black */
     --secondary-foreground-h: 0; --secondary-s: 0%; --secondary-l: 0%; /* #000000 */
 
-    /* Muted: Very Light Gray (for less important text) - e.g., #6C757D -> HSL 208 7% 46.5% */
-    --muted-h: 0; --muted-s: 0%; --muted-l: 60%; /* Adjusted for better visibility on white */
+    /* Muted: Mid Gray (for less important text) */
+    --muted-h: 0; --muted-s: 0%; --muted-l: 60%; 
     --muted-foreground-h: 0; --muted-s: 0%; --muted-l: 40%;
 
     /* Accent: Pure Black (keeping it monochrome, primary acts as accent) */
@@ -56,7 +56,7 @@ body {
     --background: hsl(var(--background-h) var(--background-s) var(--background-l));
     --foreground: hsl(var(--foreground-h) var(--foreground-s) var(--foreground-l));
     
-    --card: hsl(var(--card-h) var(--card-s) var(--card-l));
+    --card: hsl(0, 0%, 100%); /* Direct white for cards */
     --card-foreground: hsl(var(--card-foreground-h) var(--card-s) var(--card-foreground-l));
     --popover: hsl(var(--popover-h) var(--popover-s) var(--popover-l));
     --popover-foreground: hsl(var(--popover-foreground-h) var(--popover-s) var(--popover-foreground-l));
@@ -109,7 +109,7 @@ body {
     --primary-h: 0; --primary-s: 0%; --primary-l: 100%; /* White buttons */
     --primary-foreground-h: 0; --primary-s: 0%; --primary-l: 0%; /* Black text on buttons */
 
-    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 20%; /* Dark gray for secondary elements */
+    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 12%; /* Darker gray for secondary elements */
     --secondary-foreground-h: 0; --secondary-s: 0%; --secondary-l: 90%; 
 
     --muted-h: 0; --muted-s: 0%; --muted-l: 15%; 
@@ -153,5 +153,5 @@ body {
 
 /* Ensure inputs have a solid background color (white by default in light theme) */
 input, textarea, select {
-  @apply bg-card; /* Using card which is white, or can be bg-white directly */
+  @apply bg-card; 
 }

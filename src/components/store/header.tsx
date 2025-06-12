@@ -59,8 +59,8 @@ export function Header() {
       <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden mr-2 text-foreground hover:bg-secondary">
-              <Menu className="h-6 w-6" />
+            <Button variant="ghost" size="icon" className="md:hidden mr-2 text-foreground hover:bg-secondary group">
+              <Menu className="h-6 w-6 group-hover:scale-110 transition-transform duration-200" />
               <span className="sr-only">Toggle menu</span>
             </Button>
           </SheetTrigger>
@@ -71,7 +71,7 @@ export function Header() {
                   <Link                   
                     href={link.href}
                     className={cn(
-                      "text-base font-medium transition-colors hover:text-primary pb-2 border-b border-transparent hover:border-primary/50",
+                      "text-base font-medium transition-all hover:text-primary pb-2 border-b border-transparent hover:border-primary/50 hover:scale-105 origin-left",
                       pathname === link.href ? "text-primary border-primary/50" : "text-foreground" 
                     )}
                   >
@@ -81,28 +81,28 @@ export function Header() {
               ))}
               <div className="mt-6 border-t pt-6 space-y-3">
                  <SheetClose asChild>
-                   <Button variant="ghost" onClick={() => { setIsSearchOpen(true); }} className="w-full justify-start text-base text-foreground hover:text-primary">
-                     <Search className="mr-2 h-5 w-5" /> Search
+                   <Button variant="ghost" onClick={() => { setIsSearchOpen(true); }} className="w-full justify-start text-base text-foreground hover:text-primary group">
+                     <Search className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-200" /> Search
                    </Button>
                  </SheetClose>
                 {!loading && firebaseUser && (
                   <>
                     <SheetClose asChild>
-                      <Link href="/account" className="flex items-center p-2 text-base font-medium text-foreground hover:text-primary">
-                        <User className="mr-2 h-5 w-5" /> Account
+                      <Link href="/account" className="flex items-center p-2 text-base font-medium text-foreground hover:text-primary group">
+                        <User className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-200" /> Account
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
-                      <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-base text-destructive hover:bg-destructive/10 font-medium">
-                        <LogOut className="mr-2 h-5 w-5" /> Logout
+                      <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-base text-destructive hover:bg-destructive/10 font-medium group">
+                        <LogOut className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-200" /> Logout
                       </Button>
                     </SheetClose>
                   </>
                 )}
                  {!loading && !firebaseUser && (
                    <SheetClose asChild>
-                      <Link href="/login" className="flex items-center p-2 text-base font-medium text-foreground hover:text-primary">
-                        <User className="mr-2 h-5 w-5" /> Login/Register
+                      <Link href="/login" className="flex items-center p-2 text-base font-medium text-foreground hover:text-primary group">
+                        <User className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-200" /> Login/Register
                       </Link>
                     </SheetClose>
                  )}
@@ -118,7 +118,7 @@ export function Header() {
               alt="ARO Bazzar Logo"
               width={151} 
               height={50} 
-              className="object-contain" 
+              className="object-contain transition-transform duration-200 hover:scale-105" 
               style={{ objectFit: 'contain', width: 'auto', height: '50px' }} 
               priority
             />
@@ -131,7 +131,7 @@ export function Header() {
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-medium tracking-wide transition-colors hover:text-primary", 
+                "text-sm font-medium tracking-wide transition-all hover:text-primary hover:scale-105", 
                 pathname === link.href ? "text-primary" : "text-foreground/80" 
               )}
             >
@@ -141,13 +141,13 @@ export function Header() {
         </nav>
 
         <div className="flex items-center space-x-2 sm:space-x-3">
-          <Button variant="ghost" size="icon" onClick={() => setIsDesktopSearchOpen(!isDesktopSearchOpen)} className="hidden md:inline-flex text-foreground hover:bg-secondary">
-            <Search className="h-5 w-5" />
+          <Button variant="ghost" size="icon" onClick={() => setIsDesktopSearchOpen(!isDesktopSearchOpen)} className="hidden md:inline-flex text-foreground hover:bg-secondary group">
+            <Search className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
             <span className="sr-only">Search</span>
           </Button>
-          <Link href="/cart" aria-label="Shopping Cart">
+          <Link href="/cart" aria-label="Shopping Cart" className="group">
             <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-secondary">
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
               {cartItemCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                   {cartItemCount}
@@ -159,28 +159,28 @@ export function Header() {
           {!loading && firebaseUser ? (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="My Account" className="text-foreground hover:bg-secondary">
-                  <User className="h-5 w-5" />
+                <Button variant="ghost" size="icon" aria-label="My Account" className="text-foreground hover:bg-secondary group">
+                  <User className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 bg-white border-border shadow-lg"> 
                 <DropdownMenuLabel className="text-foreground">Hi, {user?.name?.split(' ')[0] || 'User'}</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-border" />
-                <Link href="/account"><DropdownMenuItem className="text-foreground hover:bg-secondary">Profile</DropdownMenuItem></Link>
-                <Link href="/account/orders"><DropdownMenuItem className="text-foreground hover:bg-secondary">Orders</DropdownMenuItem></Link>
+                <Link href="/account"><DropdownMenuItem className="text-foreground hover:bg-secondary hover:font-medium transition-all duration-150">Profile</DropdownMenuItem></Link>
+                <Link href="/account/orders"><DropdownMenuItem className="text-foreground hover:bg-secondary hover:font-medium transition-all duration-150">Orders</DropdownMenuItem></Link>
                 {isAdminUser && (
-                    <Link href="/admin"><DropdownMenuItem className="text-primary font-semibold hover:bg-secondary"><Shield className="mr-2 h-4 w-4" />Admin Panel</DropdownMenuItem></Link>
+                    <Link href="/admin"><DropdownMenuItem className="text-primary font-semibold hover:bg-secondary hover:font-medium transition-all duration-150"><Shield className="mr-2 h-4 w-4" />Admin Panel</DropdownMenuItem></Link>
                 )}
                 <DropdownMenuSeparator className="bg-border"/>
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive hover:bg-destructive/10">
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive hover:bg-destructive/10 hover:font-medium transition-all duration-150">
                   <LogOut className="mr-2 h-4 w-4" /> Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : !loading ? (
-            <Link href="/login" aria-label="Login or Register">
+            <Link href="/login" aria-label="Login or Register" className="group">
               <Button variant="ghost" size="icon" className="text-foreground hover:bg-secondary">
-                <User className="h-5 w-5" />
+                <User className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
               </Button>
             </Link>
           ) : (
