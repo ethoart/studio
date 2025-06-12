@@ -117,11 +117,10 @@ export default function HomePage() {
   const featureIcons = [Shirt, Zap, ShieldCheck];
 
   return (
-    // Removed space-y- from here, padding will be per-section
     <div> 
       <ImageGallery />
 
-      <section className="bg-background py-12 md:py-16 lg:py-20">
+      <section className="bg-background py-12 md:py-16 lg:py-20"> {/* Section 1: White Background */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-16"> 
             <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Featured Collection</h2>
@@ -153,7 +152,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-secondary py-16 md:py-20 lg:py-24"> 
+      <section className="bg-secondary py-16 md:py-20 lg:py-24"> {/* Section 2: Light Gray/Ash Background */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-12 md:mb-16">
             Why Choose ARO Bazzar?
@@ -184,7 +183,7 @@ export default function HomePage() {
         </div>
       </section>
       
-      <section className="bg-background py-12 md:py-16 lg:py-20">
+      <section className="bg-background py-12 md:py-16 lg:py-20"> {/* Section 3: White Background */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-16">
             <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground">New Arrivals</h2>
@@ -211,3 +210,6 @@ export default function HomePage() {
     </div>
   );
 }
+
+
+    
