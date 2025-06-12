@@ -13,8 +13,8 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Loader2, AlertTriangle } from 'lucide-react';
 
-const THEME_DOC_PATH = "site_settings/themeConfig";
-const THEME_DOC_ID = "default_theme_config";
+const THEME_COLLECTION_PATH = "site_settings"; // Changed from THEME_DOC_PATH
+const THEME_DOC_ID = "theme"; // Changed to be simpler and act as the document ID
 
 const initialColors: ThemeSettings['colors'] = {
   background: { h: 0, s: 0, l: 96.1 },
@@ -70,7 +70,7 @@ export default function ThemeSettingsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const themeDocRef = doc(db, THEME_DOC_PATH, THEME_DOC_ID);
+      const themeDocRef = doc(db, THEME_COLLECTION_PATH, THEME_DOC_ID); // Use updated path
       const docSnap = await getDoc(themeDocRef);
       if (docSnap.exists()) {
         const data = docSnap.data() as ThemeSettings;
@@ -135,7 +135,7 @@ export default function ThemeSettingsPage() {
     setIsSaving(true);
     setError(null);
     try {
-      const themeDocRef = doc(db, THEME_DOC_PATH, THEME_DOC_ID);
+      const themeDocRef = doc(db, THEME_COLLECTION_PATH, THEME_DOC_ID); // Use updated path
       const settingsToSave = {
         ...themeSettings,
         updatedAt: serverTimestamp(),
@@ -290,4 +290,3 @@ export default function ThemeSettingsPage() {
     </div>
   );
 }
-

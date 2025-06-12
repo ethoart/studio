@@ -3,8 +3,8 @@ import { db } from '@/lib/firebase';
 import type { ThemeSettings, FontOption, HSLColor } from '@/types';
 import { doc, getDoc } from 'firebase/firestore';
 
-const THEME_DOC_PATH = "site_settings/themeConfig";
-const THEME_DOC_ID = "default_theme_config";
+const THEME_COLLECTION_PATH = "site_settings"; // Changed from THEME_DOC_PATH
+const THEME_DOC_ID = "theme"; // Changed to be simpler and act as the document ID
 
 const bodyFontOptions: FontOption[] = [
   { name: "Inter", value: "Inter", googleFontName: "Inter", weights: "400;500;600;700" },
@@ -30,7 +30,7 @@ function getFontDetails(fontFamilyName: string, type: 'body' | 'headline'): Font
 export async function DynamicThemeLoader() {
   let themeSettings: ThemeSettings | null = null;
   try {
-    const themeDocRef = doc(db, THEME_DOC_PATH, THEME_DOC_ID);
+    const themeDocRef = doc(db, THEME_COLLECTION_PATH, THEME_DOC_ID); // Use updated path
     const docSnap = await getDoc(themeDocRef);
     if (docSnap.exists()) {
       themeSettings = docSnap.data() as ThemeSettings;
