@@ -17,8 +17,8 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      { // Added new remote pattern for raw.githubusercontent.com
-        protocol: 'https',
+      {
+        protocol: 'https', // Corrected from 'httpshttps'
         hostname: 'raw.githubusercontent.com',
         port: '',
         pathname: '/**',
