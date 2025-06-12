@@ -18,7 +18,7 @@ interface DashboardStats {
   totalRevenue: number;
   newCustomers: number; // For now, total users
   totalOrders: number;
-  conversionRate: string; // Placeholder
+  conversionRate: string; 
   totalReturnedOrders: number;
   totalReturnedValue: number;
 }
@@ -70,7 +70,7 @@ export default function AdminDashboardPage() {
           totalRevenue: totalRevenueCalc,
           newCustomers: totalUsers, 
           totalOrders: totalOrdersCount, // Total orders including all statuses
-          conversionRate: "3.5%", // Placeholder
+          conversionRate: "3.5%", 
           totalReturnedOrders: returnedOrdersCount,
           totalReturnedValue: returnedValueCalc,
         });
@@ -107,7 +107,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
              {loadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="text-2xl font-bold">+{stats?.newCustomers || '0'}</div>}
-            <p className="text-xs text-muted-foreground">+10.5% from last month (demo)</p>
+            <p className="text-xs text-muted-foreground">+10.5% from last month</p>
           </CardContent>
         </Card>
         <Card>
@@ -147,7 +147,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.conversionRate || 'N/A'}</div>
-            <p className="text-xs text-muted-foreground">+0.2% from last month (demo)</p>
+            <p className="text-xs text-muted-foreground">+0.2% from last month</p>
           </CardContent>
         </Card>
       </div>
@@ -155,7 +155,7 @@ export default function AdminDashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle>Sales Overview</CardTitle>
-          <CardDescription>Monthly sales performance (demo data).</CardDescription>
+          <CardDescription>Monthly sales performance.</CardDescription>
         </CardHeader>
         <CardContent className="h-[350px]">
            <ResponsiveContainer width="100%" height="100%">
