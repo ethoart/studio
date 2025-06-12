@@ -23,7 +23,7 @@ type PaymentMethod = 'Offline/Bank Transfer' | 'Cash on Delivery';
 export default function CheckoutPage() {
   const { toast } = useToast();
   const { cartItems, getCartTotal, clearCart, loading: cartLoading } = useCart();
-  const { firebaseUser, user, loading: authLoading } = useAuth(); // Added 'user' for prefilling email
+  const { firebaseUser, user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('Offline/Bank Transfer');
@@ -39,7 +39,6 @@ export default function CheckoutPage() {
     phone: '',
   });
 
-  // Prefill email if user is logged in
   useEffect(() => {
     if (user && user.email) {
       setShippingInfo(prev => ({ ...prev, email: user.email! }));
@@ -47,9 +46,10 @@ export default function CheckoutPage() {
   }, [user]);
 
   const subtotal = getCartTotal();
-  const shippingEstimate = cartItems.length > 0 ? 5.00 : 0;
-  const taxEstimate = subtotal * 0.08; 
-  const orderTotal = subtotal + shippingEstimate + taxEstimate;
+  const shippingEstimate = cartItems.length > 0 ? 5.00 : 0; // Keep shipping estimate as is or adjust if needed
+  const taxAmount = cartItems.length > 0 ? 35.00 : 0; // Flat tax of LKR 35
+  const codCharge = selectedPaymentMethod === 'Cash on Delivery' && cartItems.length > 0 ? 350.00 : 0;
+  const orderTotal = subtotal + shippingEstimate + taxAmount + codCharge;
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
@@ -70,12 +70,16 @@ export default function CheckoutPage() {
         customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
         customerEmail: shippingInfo.email,
         shippingAddress: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.state} ${shippingInfo.zip}`,
-        customerPhone: shippingInfo.phone, // Added phone
+        customerPhone: shippingInfo.phone,
         items: cartItems.map(item => ({ ...item })), 
-        totalAmount: orderTotal,
+        totalAmount: orderTotal, // This now includes COD charges if applicable
         status: 'Pending' as OrderStatus,
         orderDate: serverTimestamp(),
         paymentMethod: selectedPaymentMethod,
+        subtotal: subtotal,
+        shipping: shippingEstimate,
+        tax: taxAmount,
+        codCharge: codCharge, // Store COD charge separately for clarity
       };
 
       const docRef = await addDoc(collection(db, "orders"), orderData);
@@ -182,7 +186,7 @@ export default function CheckoutPage() {
                   <Truck className="h-6 w-6 text-primary" />
                   <div className="flex flex-col">
                     <span className="font-medium">Cash on Delivery (COD)</span>
-                    <span className="text-xs text-muted-foreground">Pay with cash when your order arrives.</span>
+                    <span className="text-xs text-muted-foreground">Pay with cash when your order arrives. (LKR 350.00 Fee)</span>
                   </div>
                 </Label>
              </RadioGroup>
@@ -198,7 +202,7 @@ export default function CheckoutPage() {
           
           <Button type="submit" size="lg" className="w-full" disabled={isProcessing || cartItems.length === 0}>
             {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {isProcessing ? 'Processing Order...' : `Place Order & Pay via ${selectedPaymentMethod === 'Cash on Delivery' ? 'COD' : 'Bank Transfer'}`}
+            {isProcessing ? 'Processing Order...' : `Place Order & Pay LKR ${orderTotal.toFixed(2)}`}
           </Button>
         </form>
 
@@ -232,9 +236,15 @@ export default function CheckoutPage() {
               <span>LKR {shippingEstimate.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Taxes</span>
-              <span>LKR {taxEstimate.toFixed(2)}</span>
+              <span>Tax</span>
+              <span>LKR {taxAmount.toFixed(2)}</span>
             </div>
+            {selectedPaymentMethod === 'Cash on Delivery' && cartItems.length > 0 && (
+              <div className="flex justify-between">
+                <span>COD Charge</span>
+                <span>LKR {codCharge.toFixed(2)}</span>
+              </div>
+            )}
             <Separator className="my-2" />
             <div className="flex justify-between text-base font-bold">
               <span>Order Total</span>
@@ -242,7 +252,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {selectedPaymentMethod === 'Offline/Bank Transfer' && (
+          {selectedPaymentMethod === 'Offline/Bank Transfer' && cartItems.length > 0 && (
             <>
               <Separator className="my-6" />
               <h2 className="font-headline text-lg font-semibold mb-3">Bank Transfer Instructions</h2>
@@ -265,7 +275,7 @@ export default function CheckoutPage() {
               </div>
             </>
           )}
-          {selectedPaymentMethod === 'Cash on Delivery' && (
+          {selectedPaymentMethod === 'Cash on Delivery' && cartItems.length > 0 && (
              <>
               <Separator className="my-6" />
               <h2 className="font-headline text-lg font-semibold mb-3">Cash on Delivery</h2>
@@ -286,3 +296,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+

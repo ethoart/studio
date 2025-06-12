@@ -1,7 +1,7 @@
 
 "use client";
 
-import { use, useEffect, useState } from 'react'; // Import 'use'
+import { use, useEffect, useState } from 'react'; 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -11,8 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Loader2, AlertTriangle, Package, Phone } from "lucide-react";
-import type { Order, OrderStatus, CartItem } from "@/types";
+import { ArrowLeft, Loader2, AlertTriangle, Package, Phone, Receipt } from "lucide-react";
+import type { Order, OrderStatus } from "@/types";
 import { db } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { format } from 'date-fns';
@@ -79,7 +79,7 @@ export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPa
     setIsUpdatingStatus(true);
     try {
       const orderDocRef = doc(db, "orders", order.id);
-      await updateDoc(orderDocRef, { status: selectedStatus, updatedAt: Timestamp.now() }); // Add updatedAt
+      await updateDoc(orderDocRef, { status: selectedStatus, updatedAt: Timestamp.now() }); 
       setOrder(prev => prev ? { ...prev, status: selectedStatus, updatedAt: Timestamp.now() } : null);
       toast({ title: "Status Updated", description: `Order status changed to ${selectedStatus}.` });
     } catch (err: any) {
@@ -220,11 +220,31 @@ export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPa
                 </div>
               )}
             </CardContent>
-             <CardFooter className="border-t pt-4 flex justify-end">
-                <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Subtotal: LKR {order.items.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2)}</p>
-                    {/* Add shipping, taxes if available in order data */}
-                    <p className="text-lg font-bold">Order Total: LKR {order.totalAmount.toFixed(2)}</p>
+             <CardFooter className="border-t pt-4">
+                <div className="w-full space-y-1 text-sm">
+                    <div className="flex justify-between">
+                        <span>Subtotal:</span>
+                        <span>LKR {order.subtotal?.toFixed(2) || order.items.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2)}</span>
+                    </div>
+                     <div className="flex justify-between">
+                        <span>Shipping:</span>
+                        <span>LKR {order.shipping?.toFixed(2) || '0.00'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>Tax:</span>
+                        <span>LKR {order.tax?.toFixed(2) || '0.00'}</span>
+                    </div>
+                    {order.codCharge && order.codCharge > 0 && (
+                        <div className="flex justify-between">
+                            <span>COD Charge:</span>
+                            <span>LKR {order.codCharge.toFixed(2)}</span>
+                        </div>
+                    )}
+                    <Separator className="my-1"/>
+                    <div className="flex justify-between font-bold text-base">
+                        <span>Order Total:</span>
+                        <span>LKR {order.totalAmount.toFixed(2)}</span>
+                    </div>
                 </div>
              </CardFooter>
           </Card>
@@ -270,7 +290,7 @@ export default function OrderDetailPage({ params: paramsPromise }: OrderDetailPa
                 <p>{formatDate(order.updatedAt)}</p>
               </div>
               <div>
-                <Label className="font-medium">Payment Method</Label>
+                <Label className="font-medium flex items-center"><Receipt className="mr-2 h-4 w-4" />Payment Method</Label>
                 <p>{order.paymentMethod || 'N/A'}</p>
               </div>
               {order.createdBy && (

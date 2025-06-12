@@ -46,14 +46,18 @@ export type Order = {
   userId?: string | null; 
   customerName: string;
   customerEmail: string;
-  customerPhone?: string; // Optional phone number
+  customerPhone?: string; 
   items: CartItem[];
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  codCharge?: number; // Optional COD charge
   totalAmount: number;
   status: OrderStatus;
   orderDate: Timestamp | Date | string; 
-  updatedAt?: Timestamp | Date | string; // To track status updates
+  updatedAt?: Timestamp | Date | string; 
   shippingAddress: string;
-  paymentMethod?: PaymentMethod | string; // Can be more specific or allow other strings
+  paymentMethod?: PaymentMethod | string; 
   createdBy?: string; 
 };
 
@@ -81,3 +85,4 @@ export interface ResolvedPageParams {
 export interface ProductDetailPageParams {
   params: Promise<ResolvedPageParams>;
 }
+
