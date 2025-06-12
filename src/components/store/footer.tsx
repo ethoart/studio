@@ -29,7 +29,7 @@ export function Footer() {
                 <Facebook className="h-6 w-6" />
                 <span className="sr-only">Facebook</span>
               </a>
-              <a href="#" target="_blank" rel="noopener noreferrer" className="text-foreground/70 hover:text-primary">
+              <a href="https://www.instagram.com/arobazzar/" target="_blank" rel="noopener noreferrer" className="text-foreground/70 hover:text-primary">
                 <Instagram className="h-6 w-6" />
                 <span className="sr-only">Instagram</span>
               </a>
