@@ -21,7 +21,9 @@ export default function HomepageSettingsPage() {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [newImageAlt, setNewImageAlt] = useState('');
   const [newImageDataAiHint, setNewImageDataAiHint] = useState('');
-  const [newImageLink, setNewImageLink] = useState(''); // State for new image link
+  const [newImageLink, setNewImageLink] = useState('');
+  const [newImageTitle, setNewImageTitle] = useState(''); // State for new image title
+  const [newImageSubtitle, setNewImageSubtitle] = useState(''); // State for new image subtitle
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +42,9 @@ export default function HomepageSettingsPage() {
           id: doc.id, 
           src: data.src, 
           alt: data.alt, 
-          link: data.link, // Fetch link
+          link: data.link,
+          title: data.title, // Fetch title
+          subtitle: data.subtitle, // Fetch subtitle
           dataAiHint: data.dataAiHint,
         });
       });
@@ -68,10 +72,16 @@ export default function HomepageSettingsPage() {
         src: newImageUrl,
         alt: newImageAlt,
         dataAiHint: newImageDataAiHint || "image",
-        createdAt: new Date() as any, // Simple timestamp for ordering
+        createdAt: new Date() as any, 
       };
       if (newImageLink.trim()) {
         imageData.link = newImageLink.trim();
+      }
+      if (newImageTitle.trim()) { // Add title if provided
+        imageData.title = newImageTitle.trim();
+      }
+      if (newImageSubtitle.trim()) { // Add subtitle if provided
+        imageData.subtitle = newImageSubtitle.trim();
       }
 
       await addDoc(collection(db, GALLERY_IMAGES_PATH), imageData);
@@ -79,8 +89,10 @@ export default function HomepageSettingsPage() {
       setNewImageUrl('');
       setNewImageAlt('');
       setNewImageDataAiHint('');
-      setNewImageLink(''); // Clear new image link input
-      fetchGalleryImages(); // Refresh list
+      setNewImageLink('');
+      setNewImageTitle(''); // Clear new image title input
+      setNewImageSubtitle(''); // Clear new image subtitle input
+      fetchGalleryImages(); 
     } catch (err: any) {
       console.error("Error adding image:", err);
       toast({ title: "Error Adding Image", description: err.message, variant: "destructive" });
@@ -94,7 +106,7 @@ export default function HomepageSettingsPage() {
     try {
       await deleteDoc(doc(db, GALLERY_IMAGES_PATH, id));
       toast({ title: "Image Removed" });
-      fetchGalleryImages(); // Refresh list
+      fetchGalleryImages(); 
     } catch (err: any) {
       console.error("Error removing image:", err);
       toast({ title: "Error Removing Image", description: err.message, variant: "destructive" });
@@ -124,7 +136,7 @@ export default function HomepageSettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Homepage Image Gallery</CardTitle>
-          <CardDescription>Manage the images displayed in the homepage hero gallery. Images are ordered by creation date.</CardDescription>
+          <CardDescription>Manage the images, text, and links displayed in the homepage hero gallery. Images are ordered by creation date.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {isLoading && (
@@ -145,6 +157,14 @@ export default function HomepageSettingsPage() {
               <Image src={image.src} alt={image.alt} width={150} height={75} className="rounded object-cover aspect-[2/1]" data-ai-hint={image.dataAiHint || 'gallery image'} />
               <div className="flex-grow space-y-2 w-full">
                 <div>
+                    <Label htmlFor={`img-title-${image.id}`}>Title (Optional)</Label>
+                    <Input id={`img-title-${image.id}`} defaultValue={image.title || ''} placeholder="e.g. New Arrivals" onBlur={(e) => handleUpdateImageField(image.id, 'title', e.target.value)} />
+                </div>
+                <div>
+                    <Label htmlFor={`img-subtitle-${image.id}`}>Subtitle (Optional)</Label>
+                    <Input id={`img-subtitle-${image.id}`} defaultValue={image.subtitle || ''} placeholder="e.g. Discover the latest trends" onBlur={(e) => handleUpdateImageField(image.id, 'subtitle', e.target.value)} />
+                </div>
+                <div>
                     <Label htmlFor={`img-src-${image.id}`}>Image URL</Label>
                     <Input id={`img-src-${image.id}`} defaultValue={image.src} onBlur={(e) => handleUpdateImageField(image.id, 'src', e.target.value)} />
                 </div>
@@ -158,7 +178,7 @@ export default function HomepageSettingsPage() {
                 </div>
                 <div>
                     <Label htmlFor={`img-link-${image.id}`}>Link URL (Optional)</Label>
-                    <Input id={`img-link-${image.id}`} type="url" defaultValue={image.link || ''} placeholder="e.g., /shop/new-arrivals or https://example.com" onBlur={(e) => handleUpdateImageField(image.id, 'link', e.target.value)} />
+                    <Input id={`img-link-${image.id}`} type="url" defaultValue={image.link || ''} placeholder="e.g., /shop/new-arrivals" onBlur={(e) => handleUpdateImageField(image.id, 'link', e.target.value)} />
                 </div>
               </div>
               <Button variant="destructive" size="icon" onClick={() => handleRemoveImage(image.id)} disabled={isSubmitting} className="mt-2 sm:mt-0 flex-shrink-0">
@@ -170,6 +190,14 @@ export default function HomepageSettingsPage() {
         </CardContent>
         <CardFooter className="border-t pt-6 flex flex-col gap-4 items-start">
             <h3 className="text-lg font-medium">Add New Gallery Image</h3>
+             <div>
+                <Label htmlFor="new-img-title">New Image Title (Optional)</Label>
+                <Input id="new-img-title" value={newImageTitle} onChange={(e) => setNewImageTitle(e.target.value)} placeholder="e.g., Summer Collection" />
+            </div>
+             <div>
+                <Label htmlFor="new-img-subtitle">New Image Subtitle (Optional)</Label>
+                <Input id="new-img-subtitle" value={newImageSubtitle} onChange={(e) => setNewImageSubtitle(e.target.value)} placeholder="e.g., Fresh styles for the season" />
+            </div>
              <div>
                 <Label htmlFor="new-img-src">New Image URL</Label>
                 <Input id="new-img-src" value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} placeholder="https://placehold.co/1200x600.png" />
@@ -184,7 +212,7 @@ export default function HomepageSettingsPage() {
             </div>
             <div>
                 <Label htmlFor="new-img-link">Link URL (Optional)</Label>
-                <Input id="new-img-link" type="url" value={newImageLink} onChange={(e) => setNewImageLink(e.target.value)} placeholder="/shop/category-name or https://external.link" />
+                <Input id="new-img-link" type="url" value={newImageLink} onChange={(e) => setNewImageLink(e.target.value)} placeholder="/shop/category-name" />
             </div>
             <Button onClick={handleAddImage} disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

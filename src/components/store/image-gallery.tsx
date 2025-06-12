@@ -37,7 +37,9 @@ export function ImageGallery({ autoPlay = true, interval = 5000 }: ImageGalleryP
             id: doc.id, 
             src: data.src, 
             alt: data.alt,
-            link: data.link, // Fetch link
+            link: data.link,
+            title: data.title, // Fetch title
+            subtitle: data.subtitle, // Fetch subtitle
             dataAiHint: data.dataAiHint || "image",
           });
         });
@@ -86,21 +88,32 @@ export function ImageGallery({ autoPlay = true, interval = 5000 }: ImageGalleryP
   }
 
   if (!images || images.length === 0) {
+    // Fallback display if no images are configured in CMS
     return (
-      <div className="flex h-[400px] md:h-[600px] w-full items-center justify-center bg-muted text-muted-foreground">
-        <p className="text-lg">ARO Bazzar Collection</p>
+      <div className="relative w-full h-[400px] md:h-[600px] overflow-hidden group">
+        <Image
+          src="https://placehold.co/1200x600/E0E0E0/333333.png" // Default placeholder
+          alt="ARO Bazzar Collection"
+          fill
+          objectFit="cover"
+          priority
+          data-ai-hint="fashion store"
+        />
+        <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-center p-4">
+          <h2 className="font-headline text-3xl md:text-5xl font-bold text-white mb-4 shadow-lg">ARO Bazzar Collection</h2>
+          <p className="text-lg md:text-xl text-white/90 mb-6 shadow-sm">Timeless Style, Modern Elegance</p>
+          <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-primary">
+            Shop Now
+          </Button>
+        </div>
       </div>
     );
   }
   
   const currentImage = images[currentIndex];
+  
   const slideContent = (
-    <div
-      className={cn(
-        "absolute inset-0 transition-opacity duration-1000 ease-in-out",
-        "opacity-100" // Always visible as we map only the current one or handle visibility outside
-      )}
-    >
+    <>
       <Image
         src={currentImage.src}
         alt={currentImage.alt}
@@ -110,13 +123,17 @@ export function ImageGallery({ autoPlay = true, interval = 5000 }: ImageGalleryP
         data-ai-hint={currentImage.dataAiHint}
       />
       <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-center p-4">
-        <h2 className="font-headline text-3xl md:text-5xl font-bold text-white mb-4 shadow-lg">ARO Bazzar Collection</h2>
-        <p className="text-lg md:text-xl text-white/90 mb-6 shadow-sm">Timeless Style, Modern Elegance</p>
-        <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-primary">
+        <h2 className="font-headline text-3xl md:text-5xl font-bold text-white mb-4 shadow-lg">
+          {currentImage.title || "ARO Bazzar Collection"}
+        </h2>
+        <p className="text-lg md:text-xl text-white/90 mb-6 shadow-sm">
+          {currentImage.subtitle || "Timeless Style, Modern Elegance"}
+        </p>
+        <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-primary pointer-events-none">
           Shop Now
         </Button>
       </div>
-    </div>
+    </>
   );
 
 
@@ -127,13 +144,12 @@ export function ImageGallery({ autoPlay = true, interval = 5000 }: ImageGalleryP
           key={image.id}
           className={cn(
             "absolute inset-0 transition-opacity duration-1000 ease-in-out",
-            index === currentIndex ? "opacity-100 z-0" : "opacity-0 -z-10" // Manage z-index for active slide
+            index === currentIndex ? "opacity-100 z-0" : "opacity-0 -z-10" 
           )}
         >
           {image.link ? (
             <Link href={image.link} passHref legacyBehavior>
               <a className="block w-full h-full relative" aria-label={image.alt}>
-                {/* Content of the slide (Image and Text Overlay) */}
                 <Image
                   src={image.src}
                   alt={image.alt}
@@ -143,9 +159,12 @@ export function ImageGallery({ autoPlay = true, interval = 5000 }: ImageGalleryP
                   data-ai-hint={image.dataAiHint}
                 />
                 <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-center p-4">
-                  <h2 className="font-headline text-3xl md:text-5xl font-bold text-white mb-4 shadow-lg">ARO Bazzar Collection</h2>
-                  <p className="text-lg md:text-xl text-white/90 mb-6 shadow-sm">Timeless Style, Modern Elegance</p>
-                  {/* The button itself doesn't need to be a Link if the whole slide is a Link */}
+                   <h2 className="font-headline text-3xl md:text-5xl font-bold text-white mb-4 shadow-lg">
+                     {image.title || "ARO Bazzar Collection"}
+                   </h2>
+                   <p className="text-lg md:text-xl text-white/90 mb-6 shadow-sm">
+                     {image.subtitle || "Timeless Style, Modern Elegance"}
+                   </p>
                   <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-primary pointer-events-none">
                     Shop Now
                   </Button>
@@ -153,7 +172,6 @@ export function ImageGallery({ autoPlay = true, interval = 5000 }: ImageGalleryP
               </a>
             </Link>
           ) : (
-            // Non-linkable slide content
             <div className="block w-full h-full relative">
               <Image
                 src={image.src}
@@ -164,8 +182,12 @@ export function ImageGallery({ autoPlay = true, interval = 5000 }: ImageGalleryP
                 data-ai-hint={image.dataAiHint}
               />
               <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-center p-4">
-                <h2 className="font-headline text-3xl md:text-5xl font-bold text-white mb-4 shadow-lg">ARO Bazzar Collection</h2>
-                <p className="text-lg md:text-xl text-white/90 mb-6 shadow-sm">Timeless Style, Modern Elegance</p>
+                 <h2 className="font-headline text-3xl md:text-5xl font-bold text-white mb-4 shadow-lg">
+                   {image.title || "ARO Bazzar Collection"}
+                 </h2>
+                 <p className="text-lg md:text-xl text-white/90 mb-6 shadow-sm">
+                   {image.subtitle || "Timeless Style, Modern Elegance"}
+                 </p>
                 <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-primary">
                   Shop Now
                 </Button>

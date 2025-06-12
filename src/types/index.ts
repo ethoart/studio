@@ -36,6 +36,8 @@ export type HomepageGalleryImage = {
   src: string;
   alt: string;
   link?: string; // Optional link for the gallery image/slide
+  title?: string; // Optional title for the banner slide text
+  subtitle?: string; // Optional subtitle for the banner slide text
   dataAiHint?: string;
   createdAt?: Timestamp;
 };
