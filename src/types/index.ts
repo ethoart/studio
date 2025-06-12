@@ -41,7 +41,7 @@ export type HomepageGalleryImage = {
   createdAt?: Timestamp; // For ordering
 };
 
-export type OrderStatus = 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+export type OrderStatus = 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Returned';
 
 export type Order = {
   id: string; // Firestore document ID
@@ -51,7 +51,7 @@ export type Order = {
   items: CartItem[];
   totalAmount: number;
   status: OrderStatus;
-  orderDate: Timestamp; // Will be a serverTimestamp on creation
+  orderDate: Timestamp | Date | string; // Allow more flexible date types for input/output
   shippingAddress: string;
   paymentMethod?: string;
   createdBy?: string; // UID of admin if manually created
@@ -82,3 +82,4 @@ export interface ResolvedPageParams {
 export interface ProductDetailPageParams {
   params: Promise<ResolvedPageParams>;
 }
+

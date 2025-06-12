@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, ShoppingCart, TrendingUp, Loader2 } from "lucide-react";
+import { DollarSign, Users, ShoppingCart, TrendingUp, Loader2, ArchiveRestore, RotateCcw } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
@@ -19,6 +19,8 @@ interface DashboardStats {
   newCustomers: number; // For now, total users
   totalOrders: number;
   conversionRate: string; // Placeholder
+  totalReturnedOrders: number;
+  totalReturnedValue: number;
 }
 
 export default function AdminDashboardPage() {
@@ -48,18 +50,29 @@ export default function AdminDashboardPage() {
 
         // Fetch orders
         const ordersSnapshot = await getDocs(collection(db, "orders"));
-        const totalOrders = ordersSnapshot.size;
-        let totalRevenue = 0;
+        const totalOrdersCount = ordersSnapshot.size;
+        let totalRevenueCalc = 0;
+        let returnedOrdersCount = 0;
+        let returnedValueCalc = 0;
+
         ordersSnapshot.forEach(doc => {
           const order = doc.data() as Order;
-          totalRevenue += order.totalAmount;
+          if (order.status !== 'Cancelled' && order.status !== 'Returned') { // Consider only non-cancelled/non-returned for revenue
+             totalRevenueCalc += order.totalAmount;
+          }
+          if (order.status === 'Returned') {
+            returnedOrdersCount++;
+            returnedValueCalc += order.totalAmount;
+          }
         });
 
         setStats({
-          totalRevenue,
-          newCustomers: totalUsers, // Using total users as "New Customers" for now
-          totalOrders,
+          totalRevenue: totalRevenueCalc,
+          newCustomers: totalUsers, 
+          totalOrders: totalOrdersCount, // Total orders including all statuses
           conversionRate: "3.5%", // Placeholder
+          totalReturnedOrders: returnedOrdersCount,
+          totalReturnedValue: returnedValueCalc,
         });
       } catch (error) {
         console.error("Error fetching dashboard stats:", error);
@@ -76,7 +89,7 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
       <h1 className="font-headline text-3xl font-bold">Admin Dashboard</h1>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3"> {/* Adjusted grid for 6 items */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -84,7 +97,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             {loadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="text-2xl font-bold">LKR {stats?.totalRevenue.toFixed(2) || '0.00'}</div>}
-            <p className="text-xs text-muted-foreground">+20.1% from last month (demo)</p>
+            <p className="text-xs text-muted-foreground">(Excludes Cancelled/Returned)</p>
           </CardContent>
         </Card>
         <Card>
@@ -99,12 +112,32 @@ export default function AdminDashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Orders</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {loadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="text-2xl font-bold">+{stats?.totalOrders || '0'}</div>}
-            <p className="text-xs text-muted-foreground">+5.2% from last month (demo)</p>
+            <p className="text-xs text-muted-foreground">(All statuses)</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Returned Orders</CardTitle>
+            <RotateCcw className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {loadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="text-2xl font-bold">{stats?.totalReturnedOrders || '0'}</div>}
+            <p className="text-xs text-muted-foreground">Count of returned orders</p>
+          </CardContent>
+        </Card>
+         <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Value of Returns</CardTitle>
+            <ArchiveRestore className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {loadingStats ? <Loader2 className="h-6 w-6 animate-spin" /> : <div className="text-2xl font-bold">LKR {stats?.totalReturnedValue.toFixed(2) || '0.00'}</div>}
+            <p className="text-xs text-muted-foreground">Total value of returned orders</p>
           </CardContent>
         </Card>
         <Card>
@@ -154,3 +187,4 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+

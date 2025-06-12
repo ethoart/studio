@@ -73,6 +73,7 @@ export default function OrdersPage() {
       case 'Shipped': return 'secondary';
       case 'Processing': return 'outline'; 
       case 'Pending': return 'outline';
+      case 'Returned': return 'outline'; // Added for completeness
       case 'Cancelled': return 'destructive';
       default: return 'outline';
     }
@@ -170,7 +171,11 @@ export default function OrdersPage() {
               <TableBody>
                 {orders.map((order) => (
                   <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.id.substring(0,7)}...</TableCell>
+                    <TableCell className="font-medium">
+                      <Link href={`/admin/orders/${order.id}`} className="hover:underline">
+                        {order.id.substring(0,7)}...
+                      </Link>
+                    </TableCell>
                     <TableCell>{order.customerName}</TableCell>
                     <TableCell>{formatDate(order.orderDate as Timestamp | undefined)}</TableCell>
                     <TableCell>
@@ -187,8 +192,12 @@ export default function OrdersPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem disabled><Eye className="mr-2 h-4 w-4" /> View Details</DropdownMenuItem>
-                            <DropdownMenuItem disabled>Update Status</DropdownMenuItem>
+                            <Link href={`/admin/orders/${order.id}`}>
+                              <DropdownMenuItem>
+                                <Eye className="mr-2 h-4 w-4" /> View Details
+                              </DropdownMenuItem>
+                            </Link>
+                            {/* Update Status option could be here or on detail page */}
                           </DropdownMenuContent>
                         </DropdownMenu>
                     </TableCell>
