@@ -65,6 +65,7 @@ export function Header() {
             width={60} 
             height={20} 
             className="object-contain" 
+            style={{ objectFit: 'contain' }} // Added explicit style
             priority
           />
         </Link>
