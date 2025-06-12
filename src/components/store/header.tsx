@@ -27,8 +27,6 @@ import {
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/shop', label: 'Shop' },
-  // { href: '/new-arrivals', label: 'New Arrivals' }, // Example for Calista-like nav
-  // { href: '/collections', label: 'Collections' }, // Example
   { href: '/contact', label: 'Contact Us' },
 ];
 
@@ -57,7 +55,7 @@ export function Header() {
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm"> {/* Changed bg-background to bg-card */}
       <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Mobile Menu Trigger (Left) */}
         <Sheet>
@@ -67,7 +65,7 @@ export function Header() {
               <span className="sr-only">Toggle menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[320px] p-6">
+          <SheetContent side="left" className="w-[300px] sm:w-[320px] p-6 bg-card"> {/* Added bg-card for consistency */}
             <nav className="flex flex-col space-y-3 pt-6">
               {navLinks.map((link) => (
                  <SheetClose asChild key={link.href}>
@@ -120,10 +118,10 @@ export function Header() {
             <Image
               src="https://raw.githubusercontent.com/ethoart/ARO-Bazzar-NEXT-JS/main/logo%20pngs/Untitled-2.png"
               alt="ARO Bazzar Logo"
-              width={80} // Increased size for more prominence
+              width={80} 
               height={26} 
               className="object-contain" 
-              style={{ objectFit: 'contain' }}
+              style={{ objectFit: 'contain', width: 'auto', height: '26px' }} // Ensured aspect ratio
               priority
             />
           </Link>
@@ -169,7 +167,7 @@ export function Header() {
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-48 bg-card"> {/* Added bg-card */}
                 <DropdownMenuLabel>Hi, {user?.name?.split(' ')[0] || 'User'}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <Link href="/account"><DropdownMenuItem>Profile</DropdownMenuItem></Link>
@@ -200,17 +198,17 @@ export function Header() {
       {/* Mobile Search Overlay */}
       {isSearchOpen && (
         <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm md:hidden" onClick={() => setIsSearchOpen(false)}>
-          <div className="absolute top-1/4 left-1/2 w-[90%] max-w-md -translate-x-1/2 p-4 bg-background border shadow-xl rounded-lg" onClick={(e) => e.stopPropagation()}>
-            <Input type="search" placeholder="Search products..." className="w-full h-12 text-lg" autoFocus />
+          <div className="absolute top-1/4 left-1/2 w-[90%] max-w-md -translate-x-1/2 p-4 bg-card border shadow-xl rounded-lg" onClick={(e) => e.stopPropagation()}> {/* Changed to bg-card */}
+            <Input type="search" placeholder="Search products..." className="w-full h-12 text-lg bg-background" autoFocus /> {/* Ensure input has a contrasting bg */}
             <Button variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => setIsSearchOpen(false)}> <LogOut className="rotate-180" /> </Button>
           </div>
         </div>
       )}
       {/* Desktop Search Dropdown */}
       {isDesktopSearchOpen && (
-         <div className="hidden md:block absolute top-full left-0 w-full bg-background border-t shadow-lg z-40">
+         <div className="hidden md:block absolute top-full left-0 w-full bg-card border-t shadow-lg z-40"> {/* Changed to bg-card */}
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-center">
-                <Input type="search" placeholder="Search products..." className="w-full max-w-lg h-11" autoFocus onBlur={() => setIsDesktopSearchOpen(false)}/>
+                <Input type="search" placeholder="Search products..." className="w-full max-w-lg h-11 bg-background" autoFocus onBlur={() => setIsDesktopSearchOpen(false)}/> {/* Ensure input has a contrasting bg */}
             </div>
          </div>
       )}

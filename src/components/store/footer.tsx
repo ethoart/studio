@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { Facebook, Instagram, Youtube, Linkedin } from 'lucide-react'; // Added Youtube, Linkedin
+import { Facebook, Instagram } from 'lucide-react'; // Removed Youtube, Linkedin
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -33,8 +33,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link href="/contact" className="text-foreground/70 hover:text-primary transition-colors">Contact Us</Link></li>
               <li><Link href="/shipping-returns" className="text-foreground/70 hover:text-primary transition-colors">Shipping & Returns</Link></li>
-              <li><Link href="/faq" className="text-foreground/70 hover:text-primary transition-colors">FAQ</Link></li>
-              <li><Link href="/size-guide" className="text-foreground/70 hover:text-primary transition-colors">Size Guide</Link></li>
+              {/* Removed FAQ and Size Guide */}
             </ul>
           </div>
 
@@ -54,12 +53,7 @@ export function Footer() {
               <a href="https://www.instagram.com/arobazzar/" target="_blank" rel="noopener noreferrer" className="text-foreground/60 hover:text-primary transition-colors" aria-label="Instagram">
                 <Instagram className="h-5 w-5" />
               </a>
-               <a href="#" target="_blank" rel="noopener noreferrer" className="text-foreground/60 hover:text-primary transition-colors" aria-label="YouTube">
-                <Youtube className="h-5 w-5" />
-              </a>
-               <a href="#" target="_blank" rel="noopener noreferrer" className="text-foreground/60 hover:text-primary transition-colors" aria-label="LinkedIn">
-                <Linkedin className="h-5 w-5" />
-              </a>
+              {/* Removed YouTube and LinkedIn */}
             </div>
           </div>
 
@@ -71,9 +65,3 @@ export function Footer() {
     </footer>
   );
 }
-
-// Dummy pages for links - create these files in src/app/(store)/
-// src/app/(store)/shipping-returns/page.tsx
-// src/app/(store)/faq/page.tsx
-// src/app/(store)/size-guide/page.tsx
-// Add basic content to them.

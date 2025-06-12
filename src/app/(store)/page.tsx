@@ -7,7 +7,7 @@ import { ImageGallery } from '@/components/store/image-gallery';
 import { ProductCard } from '@/components/store/product-card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight, ShoppingBag, Shirt, Zap, ShieldCheck } from 'lucide-react'; // Updated icons
+import { ArrowRight, ShoppingBag, Shirt, Zap, ShieldCheck } from 'lucide-react'; 
 import type { Product, HomepageFeatureItem } from '@/types';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, limit, Timestamp } from 'firebase/firestore';
@@ -27,7 +27,7 @@ export default function HomePage() {
       setLoadingFeatured(true);
       try {
         const productsRef = collection(db, "products");
-        const q = query(productsRef, orderBy("name", "asc"), limit(4)); // Example: order by name
+        const q = query(productsRef, orderBy("name", "asc"), limit(4)); 
         const querySnapshot = await getDocs(q);
         const products: Product[] = [];
         querySnapshot.forEach((doc) => {
@@ -114,14 +114,13 @@ export default function HomePage() {
     </div>
   );
 
-  // Example icons for "Why Choose Us" - can be mapped or made dynamic from CMS later
   const featureIcons = [Shirt, Zap, ShieldCheck];
 
   return (
-    <div className="space-y-16 md:space-y-24 lg:space-y-32">
-      <ImageGallery /> {/* This will now be the prominent hero banner */}
+    <div className="space-y-20 md:space-y-28 lg:space-y-36"> {/* Increased base spacing */}
+      <ImageGallery />
 
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12"> {/* Added vertical padding */}
         <div className="text-center mb-12 md:mb-16">
           <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight">Featured Collection</h2>
           <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
@@ -151,7 +150,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-secondary/50 py-16 md:py-24">
+      <section className="bg-secondary/30 py-16 md:py-24"> {/* Adjusted background opacity */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight mb-12 md:mb-16">
             Why Choose ARO Bazzar?
@@ -161,7 +160,7 @@ export default function HomePage() {
           ) : whyChooseUsItems.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
               {whyChooseUsItems.map((item, index) => {
-                const IconComponent = featureIcons[index % featureIcons.length] || Shirt; // Cycle through icons
+                const IconComponent = featureIcons[index % featureIcons.length] || Shirt; 
                 return (
                   <div key={item.id} className="p-6 text-center">
                     <IconComponent className="h-10 w-10 mx-auto mb-5 text-primary" strokeWidth={1.5}/>
