@@ -9,42 +9,51 @@ body {
 
 @layer base {
   :root {
-    /* New Minimalist Theme HSL Variables */
-    --background-h: 0; --background-s: 0%; --background-l: 97%; /* Very light gray / Off-white */
-    --foreground-h: 0; --foreground-s: 0%; --foreground-l: 15%; /* Dark gray / Near black */
+    /* ARO Lookbook - Modern Minimalist Theme HSL Variables */
+    /* Background: Off-white (#F5F5F5) -> HSL 0 0% 96.1% */
+    --background-h: 0; --background-s: 0%; --background-l: 96.1%;
+    /* Foreground & Primary: Dark Gray (#333333) -> HSL 0 0% 20% */
+    --foreground-h: 0; --foreground-s: 0%; --foreground-l: 20%;
+    --primary-h: 0; --primary-s: 0%; --primary-l: 20%;
 
-    --card-h: 0; --card-s: 0%; --card-l: 100%; /* White - HSL components kept for potential direct use */
-    --card-foreground-h: 0; --card-s: 0%; --card-l: 15%;
+    /* Card & Popover: White (#FFFFFF) */
+    --card-h: 0; --card-s: 0%; --card-l: 100%;
+    --card-foreground-h: 0; --card-s: 0%; --card-l: 20%; /* Dark Gray text on white cards */
 
     --popover-h: 0; --popover-s: 0%; --popover-l: 100%;
-    --popover-foreground-h: 0; --popover-s: 0%; --popover-l: 15%;
+    --popover-foreground-h: 0; --popover-s: 0%; --popover-l: 20%;
 
-    --primary-h: 0; --primary-s: 0%; --primary-l: 10%; /* Very dark gray / Black for CTAs */
-    --primary-foreground-h: 0; --primary-s: 0%; --primary-l: 98%; /* White text on dark CTAs */
+    /* Primary Foreground: Off-white for text on dark primary buttons */
+    --primary-foreground-h: 0; --primary-s: 0%; --primary-l: 98%;
 
-    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 92%; /* Light gray for secondary elements */
-    --secondary-foreground-h: 0; --secondary-s: 0%; --secondary-l: 15%; /* Dark text on light secondary */
+    /* Secondary: Light Gray (a bit lighter than accent for general use) - e.g., #EAEAEA -> HSL 0 0% 91.8% */
+    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 91.8%;
+    --secondary-foreground-h: 0; --secondary-s: 0%; --secondary-l: 20%; /* Dark Gray text on secondary */
 
-    --muted-h: 0; --muted-s: 0%; --muted-l: 94%; /* Slightly darker light gray */
+    /* Muted: Slightly off-white/very light gray - e.g., #F0F0F0 -> HSL 0 0% 94.1% */
+    --muted-h: 0; --muted-s: 0%; --muted-l: 94.1%;
     --muted-foreground-h: 0; --muted-s: 0%; --muted-l: 45%; /* Medium gray for muted text */
 
-    --accent-h: 40; --accent-s: 10%; --accent-l: 90%; /* Very subtle light beige/gray accent - can be adjusted */
-    --accent-foreground-h: 0; --accent-s: 0%; --accent-l: 15%;
+    /* Accent: Light Gray (#CCCCCC) -> HSL 0 0% 80% */
+    --accent-h: 0; --accent-s: 0%; --accent-l: 80%;
+    --accent-foreground-h: 0; --accent-s: 0%; --accent-l: 20%; /* Dark Gray text on accent */
 
-    --destructive-h: 0; --destructive-s: 75%; --destructive-l: 50%; /* Standard red */
+    /* Destructive: Standard red */
+    --destructive-h: 0; --destructive-s: 75%; --destructive-l: 50%;
     --destructive-foreground-h: 0; --destructive-s: 0%; --destructive-l: 98%;
 
-    --border-h: 0; --border-s: 0%; --border-l: 90%; /* Light gray border */
-    --input-h: 0; --input-s: 0%; --input-l: 88%; /* Slightly darker for input */
-    --ring-h: 0; --ring-s: 0%; --ring-l: 15%; /* Dark ring for focus */
+    /* Border: Light Gray (similar to accent or slightly lighter) - e.g., #DDDDDD -> HSL 0 0% 86.7% */
+    --border-h: 0; --border-s: 0%; --border-l: 86.7%;
+    /* Input: White background, border defined by --border */
+    --input-h: 0; --input-s: 0%; --input-l: 100%;
+    /* Ring: Dark Gray for focus */
+    --ring-h: 0; --ring-s: 0%; --ring-l: 20%;
 
     /* Composed HSL color variables */
     --background: hsl(var(--background-h) var(--background-s) var(--background-l));
     --foreground: hsl(var(--foreground-h) var(--foreground-s) var(--foreground-l));
     
-    /* MODIFIED: Define --card directly as white */
-    --card: hsl(0, 0%, 100%); /* Explicit white */
-    
+    --card: hsl(var(--card-h) var(--card-s) var(--card-l));
     --card-foreground: hsl(var(--card-foreground-h) var(--card-s) var(--card-foreground-l));
     --popover: hsl(var(--popover-h) var(--popover-s) var(--popover-l));
     --popover-foreground: hsl(var(--popover-foreground-h) var(--popover-s) var(--popover-foreground-l));
@@ -59,10 +68,10 @@ body {
     --destructive: hsl(var(--destructive-h) var(--destructive-s) var(--destructive-l));
     --destructive-foreground: hsl(var(--destructive-foreground-h) var(--destructive-s) var(--destructive-foreground-l));
     --border: hsl(var(--border-h) var(--border-s) var(--border-l));
-    --input: hsl(var(--input-h) var(--input-s) var(--input-l));
+    --input: hsl(var(--input-h) var(--input-s) var(--input-l)); /* Input background is white */
     --ring: hsl(var(--ring-h) var(--ring-s) var(--ring-l));
 
-    --radius: 0.375rem; /* Slightly less rounded corners for a sharper look */
+    --radius: 0.375rem; 
 
     /* Font families - these are linked in layout.tsx */
     --font-body-family: 'Inter', sans-serif;
@@ -71,9 +80,9 @@ body {
     /* Chart colors - can be customized later if needed */
     --chart-1: hsl(var(--primary-h) var(--primary-s) var(--primary-l));
     --chart-2: hsl(var(--secondary-h) var(--secondary-s) var(--secondary-l));
-    --chart-3: hsl(197 37% 44%); /* Example fixed color */
-    --chart-4: hsl(43 74% 66%);  /* Example fixed color */
-    --chart-5: hsl(27 87% 67%);  /* Example fixed color */
+    --chart-3: hsl(197 37% 44%); 
+    --chart-4: hsl(43 74% 66%);  
+    --chart-5: hsl(27 87% 67%);  
 
     /* Sidebar specific colors (kept from original for admin panel consistency) */
     --sidebar-background: 0 0% 15%; 
@@ -87,36 +96,33 @@ body {
   }
 
   .dark {
-    /* Define dark theme HSL components if needed, or use a toggle to switch all HSL sets */
-    /* For now, dark theme colors are fixed but could also be made dynamic */
-    --background-h: 0; --background-s: 0%; --background-l: 10%;
-    --foreground-h: 0; --foreground-s: 0%; --foreground-l: 0%; /* Changed from 90% for pure black foreground */
+    /* Dark Theme - Ensure these are solid and meet contrast for minimalist */
+    --background-h: 0; --background-s: 0%; --background-l: 10%; /* Dark Gray, near black */
+    --foreground-h: 0; --foreground-s: 0%; --foreground-l: 96.1%; /* Off-white text */
     
-    /* Card in dark mode */
-    --card-h: 0; --card-s: 0%; --card-l: 12%; /* Slightly lighter than pure black */
-    --card: hsl(var(--card-h) var(--card-s) var(--card-l)); /* Re-compose for dark mode */
-    --card-foreground-h: 0; --card-s: 0%; --card-l: 95%; /* Very light gray / off-white text */
+    --card-h: 0; --card-s: 0%; --card-l: 12%; /* Slightly lighter than background */
+    --card: hsl(var(--card-h) var(--card-s) var(--card-l)); 
+    --card-foreground-h: 0; --card-s: 0%; --card-l: 96.1%; /* Off-white text */
     
-    --primary-h: 0; --primary-s: 0%; --primary-l: 98%; /* White for CTAs */
-    --primary-foreground-h: 0; --primary-s: 0%; --primary-l: 10%; /* Dark text on white CTAs */
+    --primary-h: 0; --primary-s: 0%; --primary-l: 96.1%; /* Off-white for CTAs */
+    --primary-foreground-h: 0; --primary-s: 0%; --primary-l: 10%; /* Dark text on primary CTAs */
 
-    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 20%; /* Dark gray for secondary elements */
+    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 20%; /* Darker gray for secondary elements */
     --secondary-foreground-h: 0; --secondary-s: 0%; --secondary-l: 90%; /* Light text on dark secondary */
 
-    --muted-h: 0; --muted-s: 0%; --muted-l: 18%; /* Slightly lighter dark gray */
-    --muted-foreground-h: 0; --muted-s: 0%; --muted-l: 60%; /* Medium gray for muted text */
+    --muted-h: 0; --muted-s: 0%; --muted-l: 18%; 
+    --muted-foreground-h: 0; --muted-s: 0%; --muted-l: 60%; 
 
-    --accent-h: 0; --accent-s: 0%; --accent-l: 25%; /* Dark accent */
-    --accent-foreground-h: 0; --accent-s: 0%; --accent-l: 95%;
+    --accent-h: 0; --accent-s: 0%; --accent-l: 80%; /* Light Gray, same as light theme for consistency or adjust */
+    --accent-foreground-h: 0; --accent-s: 0%; --accent-l: 10%;
 
-    --border-h: 0; --border-s: 0%; --border-l: 25%; /* Darker border */
-    --input-h: 0; --input-s: 0%; --input-l: 22%; /* Darker for input */
-    --ring-h: 0; --ring-s: 0%; --ring-l: 90%; /* Light ring for focus */
+    --border-h: 0; --border-s: 0%; --border-l: 25%; 
+    --input-h: 0; --input-s: 0%; --input-l: 12%; /* Input background same as card */
+    --ring-h: 0; --ring-s: 0%; --ring-l: 80%; /* Light ring for focus */
     
     /* Sidebar dark theme (can be derived or separate settings) */
     --sidebar-background: 0 0% 12%;
     --sidebar-foreground: 0 0% 85%;
-    /* ... */
   }
 }
 
@@ -126,7 +132,7 @@ body {
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-body-family); /* Apply dynamic body font */
+    font-family: var(--font-body-family); 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -135,11 +141,9 @@ body {
   }
 }
 
-/* Additional global styles for the new theme */
 .font-headline {
   font-family: var(--font-headline-family);
 }
 .font-body {
   font-family: var(--font-body-family);
 }
-

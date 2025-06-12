@@ -29,7 +29,6 @@ export function ImageGallery({ autoPlay = true, interval = 7000 }: ImageGalleryP
       setIsLoading(true);
       setError(null);
       try {
-        // Fetch only the first image ordered by createdAt for the hero
         const q = query(collection(db, GALLERY_IMAGES_PATH), orderBy("createdAt", "asc"), limit(1));
         const querySnapshot = await getDocs(q);
         
@@ -47,8 +46,6 @@ export function ImageGallery({ autoPlay = true, interval = 7000 }: ImageGalleryP
             createdAt: data.createdAt as Timestamp,
           });
         } else {
-            console.warn("ImageGallery: No hero image found in Firestore at path:", GALLERY_IMAGES_PATH);
-            // Set a default placeholder if no image is found in CMS
             setHeroImage({
               id: 'placeholder-hero',
               src: 'https://placehold.co/1600x800/f0f0f0/333333.png',
@@ -68,7 +65,6 @@ export function ImageGallery({ autoPlay = true, interval = 7000 }: ImageGalleryP
             message += ` Details: ${err.message}`;
         }
         setError(message);
-         // Fallback to placeholder on error too
         setHeroImage({
             id: 'error-hero',
             src: 'https://placehold.co/1600x800/e0e0e0/555555.png',
@@ -90,7 +86,7 @@ export function ImageGallery({ autoPlay = true, interval = 7000 }: ImageGalleryP
     return (
       <div className="relative w-full h-[500px] md:h-[650px] lg:h-[700px] overflow-hidden">
         <Skeleton className="w-full h-full" />
-         <div className="absolute inset-0 bg-black/20 flex flex-col items-center justify-center text-center p-6">
+         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
             <Skeleton className="h-14 w-3/4 max-w-xl mb-4" />
             <Skeleton className="h-8 w-1/2 max-w-md mb-8" />
             <Skeleton className="h-12 w-40" />
@@ -99,11 +95,9 @@ export function ImageGallery({ autoPlay = true, interval = 7000 }: ImageGalleryP
     );
   }
 
-  // Error state is handled by showing the error-hero image set in fetchHeroImage
-  // If heroImage is null after loading and no error, it means no CMS image and no placeholder was set (shouldn't happen with current logic)
   if (!heroImage) {
      return (
-      <div className="relative w-full h-[500px] md:h-[650px] lg:h-[700px] flex items-center justify-center bg-muted/50 text-muted-foreground border-y">
+      <div className="relative w-full h-[500px] md:h-[650px] lg:h-[700px] flex items-center justify-center bg-muted text-muted-foreground border-y">
         <div className="text-center p-6">
             <AlertTriangle className="mx-auto h-12 w-12 mb-4" />
             <h2 className="text-xl font-semibold mb-2">Hero Banner Not Available</h2>
@@ -114,14 +108,21 @@ export function ImageGallery({ autoPlay = true, interval = 7000 }: ImageGalleryP
   }
   
   const HeroContent = () => (
-    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent flex flex-col items-center justify-end text-center p-6 pb-16 md:pb-24">
+    // Removed gradient overlay from here for a "no transparent items" approach
+    <div className="absolute inset-0 flex flex-col items-center justify-end text-center p-6 pb-16 md:pb-24">
        {heroImage.title && (
-         <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-3 md:mb-4 shadow-xl leading-tight">
+         <h1 
+            className="font-headline text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-3 md:mb-4 leading-tight"
+            style={{ textShadow: '0px 2px 4px rgba(0, 0, 0, 0.5)' }} // Add text shadow for readability
+         >
            {heroImage.title}
          </h1>
        )}
        {heroImage.subtitle && (
-         <p className="text-lg md:text-xl lg:text-2xl text-white/90 mb-6 md:mb-8 shadow-md max-w-2xl">
+         <p 
+            className="text-lg md:text-xl lg:text-2xl text-white/95 mb-6 md:mb-8 max-w-2xl" // Slightly increased opacity for better readability
+            style={{ textShadow: '0px 1px 3px rgba(0, 0, 0, 0.5)' }} // Add text shadow for readability
+          >
            {heroImage.subtitle}
          </p>
        )}
@@ -132,8 +133,8 @@ export function ImageGallery({ autoPlay = true, interval = 7000 }: ImageGalleryP
           </Button>
         </Link>
        )}
-        {error && ( // Display error message subtly if there was an issue but we have a fallback
-            <p className="text-xs text-red-300 bg-red-900/50 p-2 rounded-md mt-4">{error}</p>
+        {error && ( 
+            <p className="text-xs text-red-300 bg-red-900/70 p-2 rounded-md mt-4">{error}</p>
         )}
      </div>
   );

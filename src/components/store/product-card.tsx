@@ -13,7 +13,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const productLink = product.slug ? `/product/${product.slug}` : `/product/not-found`; 
 
   return (
-    <Card className="group overflow-hidden rounded-md border border-border/30 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full bg-card"> {/* Border made more subtle */}
+    <Card className="group overflow-hidden rounded-md border border-border hover:shadow-lg transition-shadow duration-300 flex flex-col h-full bg-card"> {/* Changed border-border/30 to border-border */}
       <CardHeader className="p-0 relative">
         <Link href={productLink} className="block aspect-[3/4] w-full overflow-hidden rounded-t-md">
           <Image

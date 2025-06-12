@@ -55,7 +55,7 @@ export function Header() {
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm opacity-100"> {/* Ensured bg-card and added opacity-100 */}
+    <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm opacity-100">
       <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Mobile Menu Trigger (Left) */}
         <Sheet>
@@ -195,11 +195,11 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Search Overlay */}
+      {/* Mobile Search Overlay - Solid Background */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm md:hidden" onClick={() => setIsSearchOpen(false)}>
+        <div className="fixed inset-0 z-[100] bg-background md:hidden" onClick={() => setIsSearchOpen(false)}>
           <div className="absolute top-1/4 left-1/2 w-[90%] max-w-md -translate-x-1/2 p-4 bg-card border shadow-xl rounded-lg" onClick={(e) => e.stopPropagation()}>
-            <Input type="search" placeholder="Search products..." className="w-full h-12 text-lg bg-background" autoFocus />
+            <Input type="search" placeholder="Search products..." className="w-full h-12 text-lg bg-input" autoFocus />
             <Button variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => setIsSearchOpen(false)}> <LogOut className="rotate-180" /> </Button>
           </div>
         </div>
@@ -208,7 +208,7 @@ export function Header() {
       {isDesktopSearchOpen && (
          <div className="hidden md:block absolute top-full left-0 w-full bg-card border-t shadow-lg z-40">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-center">
-                <Input type="search" placeholder="Search products..." className="w-full max-w-lg h-11 bg-background" autoFocus onBlur={() => setIsDesktopSearchOpen(false)}/>
+                <Input type="search" placeholder="Search products..." className="w-full max-w-lg h-11 bg-input" autoFocus onBlur={() => setIsDesktopSearchOpen(false)}/>
             </div>
          </div>
       )}

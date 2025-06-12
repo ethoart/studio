@@ -117,10 +117,10 @@ export default function HomePage() {
   const featureIcons = [Shirt, Zap, ShieldCheck];
 
   return (
-    <div className="space-y-20 md:space-y-28 lg:space-y-36"> {/* Increased base spacing */}
+    <div className="space-y-20 md:space-y-28 lg:space-y-36">
       <ImageGallery />
 
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12"> {/* Added vertical padding */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight">Featured Collection</h2>
           <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
@@ -150,7 +150,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-secondary/30 py-16 md:py-24"> {/* Adjusted background opacity */}
+      <section className="bg-secondary py-16 md:py-24"> {/* Changed from bg-secondary/30 */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight mb-12 md:mb-16">
             Why Choose ARO Bazzar?
