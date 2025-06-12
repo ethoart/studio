@@ -35,6 +35,7 @@ export type HomepageGalleryImage = {
   id:string;
   src: string;
   alt: string;
+  link?: string; // Optional link for the gallery image/slide
   dataAiHint?: string;
   createdAt?: Timestamp;
 };
@@ -59,7 +60,7 @@ export type Order = {
   updatedAt?: Timestamp | Date | string;
   shippingAddress: string;
   paymentMethod?: PaymentMethod | string;
-  createdBy?: string;
+  createdBy?: string; // Admin who created the order, if applicable
 };
 
 export type UserRole = 'customer' | 'admin' | 'super admin';
@@ -96,3 +97,4 @@ export type Review = {
   text: string;
   createdAt: Timestamp;
 };
+
