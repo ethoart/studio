@@ -15,9 +15,10 @@ import {
   LineChart,
   Home,
   Palette,
-  PlusCircle, // Added for new order link
-  ListOrdered, // For order list
-  Settings2, // For store settings
+  PlusCircle, 
+  ListOrdered, 
+  Settings2, 
+  ThumbsUp, // Added icon for Homepage Features
 } from 'lucide-react';
 import {
   Sidebar,
@@ -53,9 +54,10 @@ const adminNavItems = [
   { href: '/admin/analytics', label: 'Analytics', icon: LineChart }, 
   {
     label: 'Storefront Settings',
-    icon: Settings2, // Changed icon for better distinction
+    icon: Settings2,
     subItems: [
-      { href: '/admin/settings/homepage', label: 'Homepage', icon: Home },
+      { href: '/admin/settings/homepage', label: 'Homepage Gallery', icon: Home },
+      { href: '/admin/settings/homepage-features', label: 'Homepage Features', icon: ThumbsUp },
       { href: '/admin/settings/theme', label: 'Theme', icon: Palette }, 
     ]
   },

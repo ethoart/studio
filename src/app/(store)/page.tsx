@@ -7,24 +7,26 @@ import { ImageGallery } from '@/components/store/image-gallery';
 import { ProductCard } from '@/components/store/product-card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight, ShoppingBag } from 'lucide-react';
-import type { Product } from '@/types';
+import { ArrowRight, ShoppingBag, ThumbsUp } from 'lucide-react';
+import type { Product, HomepageFeatureItem } from '@/types';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, limit, Timestamp } from 'firebase/firestore';
+
+const WHY_CHOOSE_US_PATH = "site_settings/homepage/featureItems";
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [newArrivals, setNewArrivals] = useState<Product[]>([]);
+  const [whyChooseUsItems, setWhyChooseUsItems] = useState<HomepageFeatureItem[]>([]);
   const [loadingFeatured, setLoadingFeatured] = useState(true);
   const [loadingNewArrivals, setLoadingNewArrivals] = useState(true);
+  const [loadingWhyChooseUs, setLoadingWhyChooseUs] = useState(true);
 
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       setLoadingFeatured(true);
       try {
         const productsRef = collection(db, "products");
-        // Placeholder for "featured": fetch first 4 products by name.
-        // A proper "featured" system would involve a flag in Firestore.
         const q = query(productsRef, orderBy("name", "asc"), limit(4));
         const querySnapshot = await getDocs(q);
         const products: Product[] = [];
@@ -48,12 +50,11 @@ export default function HomePage() {
         const products: Product[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          // Ensure createdAt is a Firestore Timestamp before converting
           let createdAt = data.createdAt;
           if (createdAt && !(createdAt instanceof Timestamp) && typeof createdAt.toDate === 'function') {
-             createdAt = createdAt.toDate(); // Convert if it's a Firestore-like object but not instance of Timestamp
+             createdAt = createdAt.toDate();
           } else if (typeof createdAt === 'string') {
-             createdAt = new Date(createdAt); // Convert if string
+             createdAt = new Date(createdAt);
           }
           products.push({ id: doc.id, ...data, createdAt } as Product);
         });
@@ -65,8 +66,27 @@ export default function HomePage() {
       }
     };
 
+    const fetchWhyChooseUsItems = async () => {
+      setLoadingWhyChooseUs(true);
+      try {
+        const itemsRef = collection(db, WHY_CHOOSE_US_PATH);
+        const q = query(itemsRef, orderBy("createdAt", "asc"), limit(3)); // Fetch up to 3 items
+        const querySnapshot = await getDocs(q);
+        const items: HomepageFeatureItem[] = [];
+        querySnapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() } as HomepageFeatureItem);
+        });
+        setWhyChooseUsItems(items);
+      } catch (error) {
+        console.error("Error fetching 'Why Choose Us' items:", error);
+      } finally {
+        setLoadingWhyChooseUs(false);
+      }
+    };
+
     fetchFeaturedProducts();
     fetchNewArrivals();
+    fetchWhyChooseUsItems();
   }, []);
 
   const ProductListSkeleton = () => (
@@ -81,9 +101,21 @@ export default function HomePage() {
     </div>
   );
 
+  const WhyChooseUsSkeleton = () => (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="p-6 bg-background rounded-lg shadow-sm">
+          <Skeleton className="h-6 w-3/4 mb-3" />
+          <Skeleton className="h-4 w-full mb-1" />
+          <Skeleton className="h-4 w-5/6" />
+        </div>
+      ))}
+    </div>
+  );
+
+
   return (
     <div className="space-y-12 md:space-y-16 lg:space-y-20">
-      {/* ImageGallery fetches its own images from Firestore */}
       <ImageGallery />
 
       <section className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -121,26 +153,26 @@ export default function HomePage() {
           <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight mb-6">
             Why Choose ARO Bazzar?
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 bg-background rounded-lg shadow-sm">
-              <h3 className="font-headline text-xl font-semibold mb-2">Exclusive Designs</h3>
+          {loadingWhyChooseUs ? (
+            <WhyChooseUsSkeleton />
+          ) : whyChooseUsItems.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {whyChooseUsItems.map((item) => (
+                <div key={item.id} className="p-6 bg-background rounded-lg shadow-sm">
+                  {/* Icon can be added here if stored/mapped, e.g. <ThumbsUp className="h-8 w-8 mx-auto mb-3 text-primary" /> */}
+                  <h3 className="font-headline text-xl font-semibold mb-2">{item.title}</h3>
+                  <p className="text-muted-foreground text-sm">{item.description}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+             <div className="p-6 bg-background rounded-lg shadow-sm">
+              <h3 className="font-headline text-xl font-semibold mb-2">Configure in CMS</h3>
               <p className="text-muted-foreground text-sm">
-                Unique pieces you won&apos;t find anywhere else, crafted with attention to detail.
+                Add items to the &quot;Why Choose Us&quot; section from the admin panel.
               </p>
             </div>
-            <div className="p-6 bg-background rounded-lg shadow-sm">
-              <h3 className="font-headline text-xl font-semibold mb-2">Premium Quality</h3>
-              <p className="text-muted-foreground text-sm">
-                We use high-quality materials to ensure comfort, durability, and lasting style.
-              </p>
-            </div>
-            <div className="p-6 bg-background rounded-lg shadow-sm">
-              <h3 className="font-headline text-xl font-semibold mb-2">Sustainable Fashion</h3>
-              <p className="text-muted-foreground text-sm">
-                Committed to ethical practices and sustainable sourcing for a better future.
-              </p>
-            </div>
-          </div>
+          )}
         </div>
       </section>
       

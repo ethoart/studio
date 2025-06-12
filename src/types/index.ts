@@ -42,6 +42,13 @@ export type HomepageGalleryImage = {
   createdAt?: Timestamp;
 };
 
+export type HomepageFeatureItem = {
+  id: string;
+  title: string;
+  description: string;
+  createdAt?: Timestamp; // For ordering
+};
+
 export type OrderStatus = 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Returned';
 export type PaymentMethod = 'Offline/Bank Transfer' | 'Cash on Delivery';
 
