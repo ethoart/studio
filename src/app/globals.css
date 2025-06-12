@@ -9,33 +9,33 @@ body {
 
 @layer base {
   :root {
-    /* Extreme Minimalist Black & White Theme HSL Variables */
+    /* Modern Minimalist Black & White Theme HSL Variables */
     /* Background: Pure White */
-    --background-h: 0; --background-s: 0%; --background-l: 100%;
+    --background-h: 0; --background-s: 0%; --background-l: 100%; /* #FFFFFF */
     /* Foreground (Text): Pure Black */
-    --foreground-h: 0; --foreground-s: 0%; --foreground-l: 0%;
+    --foreground-h: 0; --foreground-s: 0%; --foreground-l: 0%; /* #000000 */
     
     /* Primary: Pure Black */
-    --primary-h: 0; --primary-s: 0%; --primary-l: 0%;
+    --primary-h: 0; --primary-s: 0%; --primary-l: 0%; /* #000000 */
     /* Primary Foreground (Text on Primary): Pure White */
-    --primary-foreground-h: 0; --primary-s: 0%; --primary-l: 100%;
+    --primary-foreground-h: 0; --primary-s: 0%; --primary-l: 100%; /* #FFFFFF */
 
     /* Card & Popover: Pure White */
-    --card-h: 0; --card-s: 0%; --card-l: 100%;
+    --card-h: 0; --card-s: 0%; --card-l: 100%; /* #FFFFFF */
     /* Card Foreground (Text on Card): Pure Black */
-    --card-foreground-h: 0; --card-s: 0%; --card-l: 0%;
+    --card-foreground-h: 0; --card-s: 0%; --card-l: 0%; /* #000000 */
 
     --popover-h: var(--card-h); --popover-s: var(--card-s); --popover-l: var(--card-l);
     --popover-foreground-h: var(--card-foreground-h); --popover-foreground-s: var(--card-foreground-s); --popover-foreground-l: var(--card-foreground-l);
 
-    /* Secondary: Very Light Gray (for subtle backgrounds or dividers) - e.g., #F8F9FA -> HSL 210 17% 97.5% */
-    --secondary-h: 210; --secondary-s: 17%; --secondary-l: 97.5%; /* A very light, cool gray */
+    /* Secondary: Light Gray (for subtle backgrounds or dividers) - e.g., #CCCCCC */
+    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 80%; /* #CCCCCC Light Gray */
     /* Secondary Foreground (Text on Secondary): Pure Black */
-    --secondary-foreground-h: 0; --secondary-s: 0%; --secondary-l: 0%;
+    --secondary-foreground-h: 0; --secondary-s: 0%; --secondary-l: 0%; /* #000000 */
 
-    /* Muted: Light Gray (for less important text) - e.g., #6C757D -> HSL 208 7% 46.5% */
-    --muted-h: 208; --muted-s: 7%; --muted-l: 60%; /* Adjusted for better visibility on white */
-    --muted-foreground-h: 208; --muted-s: 7%; --muted-l: 46.5%;
+    /* Muted: Very Light Gray (for less important text) - e.g., #6C757D -> HSL 208 7% 46.5% */
+    --muted-h: 0; --muted-s: 0%; --muted-l: 60%; /* Adjusted for better visibility on white */
+    --muted-foreground-h: 0; --muted-s: 0%; --muted-l: 40%;
 
     /* Accent: Pure Black (keeping it monochrome, primary acts as accent) */
     --accent-h: var(--primary-h); --accent-s: var(--primary-s); --accent-l: var(--primary-l);
@@ -45,12 +45,12 @@ body {
     --destructive-h: 0; --destructive-s: 84%; --destructive-l: 60%;
     --destructive-foreground-h: 0; --destructive-s: 0%; --destructive-l: 100%;
 
-    /* Border: Very Light Gray (subtle) - e.g., #DEE2E6 -> HSL 210 14% 89.8% */
-    --border-h: 210; --border-s: 14%; --border-l: 89.8%;
+    /* Border: Very Light Gray (subtle) - e.g., #E0E0E0 */
+    --border-h: 0; --border-s: 0%; --border-l: 87.8%; /* #E0E0E0 */
     /* Input: Border color from --border, background white */
     --input-h: var(--border-h); --input-s: var(--border-s); --input-l: var(--border-l);
     /* Ring: Black for focus */
-    --ring-h: 0; --ring-s: 0%; --ring-l: 0%;
+    --ring-h: 0; --ring-s: 0%; --ring-l: 0%; /* #000000 */
 
     /* Composed HSL color variables */
     --background: hsl(var(--background-h) var(--background-s) var(--background-l));
@@ -71,14 +71,14 @@ body {
     --destructive: hsl(var(--destructive-h) var(--destructive-s) var(--destructive-l));
     --destructive-foreground: hsl(var(--destructive-foreground-h) var(--destructive-s) var(--destructive-foreground-l));
     --border: hsl(var(--border-h) var(--border-s) var(--border-l));
-    --input: hsl(var(--input-h) var(--input-s) var(--input-l)); 
+    --input: hsl(var(--border-h) var(--border-s) var(--border-l)); /* Input border to match general border */
     --ring: hsl(var(--ring-h) var(--ring-s) var(--ring-l));
 
-    --radius: 0.375rem; /* 6px */
+    --radius: 0rem; /* No border radius for sharp edges */
 
     /* Font families - Using Inter for both for a clean, modern sans-serif look */
     --font-body-family: 'Inter', sans-serif;
-    --font-headline-family: 'Inter', sans-serif; /* Changed from Playfair Display */
+    --font-headline-family: 'Inter', sans-serif;
 
     /* Chart colors - can be customized later if needed */
     --chart-1: hsl(var(--primary-h) var(--primary-s) var(--primary-l));
@@ -109,7 +109,7 @@ body {
     --primary-h: 0; --primary-s: 0%; --primary-l: 100%; /* White buttons */
     --primary-foreground-h: 0; --primary-s: 0%; --primary-l: 0%; /* Black text on buttons */
 
-    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 12%; /* Dark gray for secondary elements */
+    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 20%; /* Dark gray for secondary elements */
     --secondary-foreground-h: 0; --secondary-s: 0%; --secondary-l: 90%; 
 
     --muted-h: 0; --muted-s: 0%; --muted-l: 15%; 
@@ -139,8 +139,8 @@ body {
     -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-headline-family); /* Will use Inter */
-    @apply font-semibold; /* Add default weight for headlines */
+    font-family: var(--font-headline-family);
+    @apply font-semibold; 
   }
 }
 
@@ -149,4 +149,9 @@ body {
 }
 .font-body {
   font-family: var(--font-body-family);
+}
+
+/* Ensure inputs have a solid background color (white by default in light theme) */
+input, textarea, select {
+  @apply bg-card; /* Using card which is white, or can be bg-white directly */
 }

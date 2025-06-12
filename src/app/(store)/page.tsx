@@ -93,9 +93,9 @@ export default function HomePage() {
     <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
       {[...Array(4)].map((_, i) => (
         <div key={i} className="space-y-3">
-          <Skeleton className="h-[380px] w-full bg-secondary" /> 
-          <Skeleton className="h-5 w-3/4 mx-auto bg-secondary" />
-          <Skeleton className="h-5 w-1/2 mx-auto bg-secondary" />
+          <Skeleton className="h-[380px] w-full bg-muted" /> 
+          <Skeleton className="h-5 w-3/4 mx-auto bg-muted" />
+          <Skeleton className="h-5 w-1/2 mx-auto bg-muted" />
         </div>
       ))}
     </div>
@@ -105,10 +105,10 @@ export default function HomePage() {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       {[...Array(3)].map((_, i) => (
         <div key={i} className="p-6 text-center">
-          <Skeleton className="h-10 w-10 mx-auto mb-4 rounded-full bg-secondary" />
-          <Skeleton className="h-6 w-3/4 mb-3 mx-auto bg-secondary" />
-          <Skeleton className="h-4 w-full mb-1 mx-auto bg-secondary" />
-          <Skeleton className="h-4 w-5/6 mx-auto bg-secondary" />
+          <Skeleton className="h-10 w-10 mx-auto mb-4 rounded-full bg-muted" />
+          <Skeleton className="h-6 w-3/4 mb-3 mx-auto bg-muted" />
+          <Skeleton className="h-4 w-full mb-1 mx-auto bg-muted" />
+          <Skeleton className="h-4 w-5/6 mx-auto bg-muted" />
         </div>
       ))}
     </div>
