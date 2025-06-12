@@ -27,6 +27,7 @@ export default function OrdersPage() {
       setError(null);
       try {
         const ordersCollectionRef = collection(db, "orders");
+        // Ensure you have an index on orderDate desc for this query
         const q = query(ordersCollectionRef, orderBy("orderDate", "desc"));
         const querySnapshot = await getDocs(q);
         const fetchedOrders: Order[] = [];
@@ -36,19 +37,23 @@ export default function OrdersPage() {
             id: doc.id,
             customerName: data.customerName || 'N/A',
             customerEmail: data.customerEmail || 'N/A',
-            items: data.items || [], // Ensure items is an array
+            items: data.items || [],
             totalAmount: data.totalAmount || 0,
             status: data.status as OrderStatus || 'Pending',
-            orderDate: data.orderDate, 
+            orderDate: data.orderDate as Timestamp, // Firestore typically returns Timestamp
             shippingAddress: data.shippingAddress || 'N/A',
             userId: data.userId || undefined,
+            paymentMethod: data.paymentMethod || 'N/A',
+            createdBy: data.createdBy || undefined,
           });
         });
         setOrders(fetchedOrders);
       } catch (err: any) {
         console.error("Detailed error fetching orders:", err); 
         let detailedErrorMessage = "Failed to fetch orders. Please ensure you have an 'orders' collection in Firestore and appropriate security rules.";
-        if (err.code) { 
+        if (err.code === 'failed-precondition' && err.message.includes('index')) {
+          detailedErrorMessage += " The query requires an index. Please check the Firestore console for a link to create it (usually involving the 'orderDate' field sorted descending).";
+        } else if (err.code) { 
           detailedErrorMessage += ` Firebase error details: Code: ${err.code}. Message: ${err.message}`;
         } else {
           detailedErrorMessage += ` Details: ${err.message || 'Unknown error'}`;
@@ -73,19 +78,24 @@ export default function OrdersPage() {
     }
   };
 
-  const formatDate = (dateValue: Timestamp | string | undefined) => {
+  const formatDate = (dateValue: Timestamp | undefined) => {
     if (!dateValue) return 'N/A';
     try {
-      if (typeof dateValue === 'string') {
-        return format(new Date(dateValue), 'MMM dd, yyyy');
-      }
-      if (dateValue && typeof (dateValue as Timestamp).toDate === 'function') {
-        return format((dateValue as Timestamp).toDate(), 'MMM dd, yyyy');
-      }
+        // Check if it's a Firestore Timestamp and has the toDate method
+        if (dateValue && typeof dateValue.toDate === 'function') {
+         return format(dateValue.toDate(), 'MMM dd, yyyy, p'); // Added time
+        }
+        // Fallback for string dates (e.g., from manual entry or older data)
+        if (typeof dateValue === 'string') {
+          const parsedDate = new Date(dateValue);
+          if (!isNaN(parsedDate.getTime())) {
+            return format(parsedDate, 'MMM dd, yyyy, p');
+          }
+        }
     } catch (e) {
       console.warn("Could not format date:", dateValue, e);
     }
-    return String(dateValue); 
+    return String(dateValue); // Fallback if not a recognized Timestamp or valid date string
   };
 
 
@@ -110,7 +120,7 @@ export default function OrdersPage() {
           <AlertDescription>
             {error}
             <br />
-            Please check your browser's developer console for more specific Firebase error details. Ensure your Firestore Security Rules allow admin access to the 'orders' collection and that the collection exists.
+            Please check your browser's developer console for more specific Firebase error details.
           </AlertDescription>
         </Alert>
       </div>
@@ -141,7 +151,7 @@ export default function OrdersPage() {
              <div className="text-center py-10">
                 <p className="text-muted-foreground">No orders found.</p>
                 <p className="text-sm text-muted-foreground mt-2">
-                    If you expect to see orders, ensure you have an 'orders' collection in Firestore with appropriate data and security rules.
+                    Ensure orders are being placed through the storefront or added manually.
                 </p>
             </div>
            )}
@@ -162,7 +172,7 @@ export default function OrdersPage() {
                   <TableRow key={order.id}>
                     <TableCell className="font-medium">{order.id.substring(0,7)}...</TableCell>
                     <TableCell>{order.customerName}</TableCell>
-                    <TableCell>{formatDate(order.orderDate)}</TableCell>
+                    <TableCell>{formatDate(order.orderDate as Timestamp | undefined)}</TableCell>
                     <TableCell>
                       <Badge variant={getStatusBadgeVariant(order.status)}>
                         {order.status}
@@ -192,3 +202,4 @@ export default function OrdersPage() {
     </div>
   );
 }
+

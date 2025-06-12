@@ -45,13 +45,13 @@ export type OrderStatus = 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | '
 
 export type Order = {
   id: string; // Firestore document ID
-  userId?: string; // UID of the user who placed the order
+  userId?: string | null; // UID of the user who placed the order, null for guest
   customerName: string;
   customerEmail: string;
   items: CartItem[];
   totalAmount: number;
   status: OrderStatus;
-  orderDate: Timestamp | string; 
+  orderDate: Timestamp; // Will be a serverTimestamp on creation
   shippingAddress: string;
   paymentMethod?: string;
   createdBy?: string; // UID of admin if manually created
@@ -74,3 +74,11 @@ export type Category = {
   slug: string; // URL-friendly identifier
   createdAt?: Timestamp;
 };
+
+// For product detail page params promise
+export interface ResolvedPageParams {
+  slug: string;
+}
+export interface ProductDetailPageParams {
+  params: Promise<ResolvedPageParams>;
+}
