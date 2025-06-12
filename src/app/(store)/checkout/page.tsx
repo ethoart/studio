@@ -46,9 +46,9 @@ export default function CheckoutPage() {
   }, [user]);
 
   const subtotal = getCartTotal();
-  const shippingEstimate = cartItems.length > 0 ? 5.00 : 0; // Keep shipping estimate as is or adjust if needed
+  const shippingEstimate = cartItems.length > 0 ? 350.00 : 0; // Updated shipping charge
   const taxAmount = cartItems.length > 0 ? 35.00 : 0; // Flat tax of LKR 35
-  const codCharge = selectedPaymentMethod === 'Cash on Delivery' && cartItems.length > 0 ? 350.00 : 0;
+  const codCharge = selectedPaymentMethod === 'Cash on Delivery' && cartItems.length > 0 ? 100.00 : 0; // Updated COD charge
   const orderTotal = subtotal + shippingEstimate + taxAmount + codCharge;
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -72,14 +72,14 @@ export default function CheckoutPage() {
         shippingAddress: `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.state} ${shippingInfo.zip}`,
         customerPhone: shippingInfo.phone,
         items: cartItems.map(item => ({ ...item })), 
-        totalAmount: orderTotal, // This now includes COD charges if applicable
+        totalAmount: orderTotal,
         status: 'Pending' as OrderStatus,
         orderDate: serverTimestamp(),
         paymentMethod: selectedPaymentMethod,
         subtotal: subtotal,
         shipping: shippingEstimate,
         tax: taxAmount,
-        codCharge: codCharge, // Store COD charge separately for clarity
+        codCharge: codCharge,
       };
 
       const docRef = await addDoc(collection(db, "orders"), orderData);
@@ -186,7 +186,7 @@ export default function CheckoutPage() {
                   <Truck className="h-6 w-6 text-primary" />
                   <div className="flex flex-col">
                     <span className="font-medium">Cash on Delivery (COD)</span>
-                    <span className="text-xs text-muted-foreground">Pay with cash when your order arrives. (LKR 350.00 Fee)</span>
+                    <span className="text-xs text-muted-foreground">Pay with cash when your order arrives. (LKR {codCharge.toFixed(2)} Fee)</span>
                   </div>
                 </Label>
              </RadioGroup>
