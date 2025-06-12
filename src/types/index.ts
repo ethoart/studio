@@ -107,3 +107,49 @@ export type Review = {
   createdAt: Timestamp;
 };
 
+// Theme Customization Types
+export type HSLColor = {
+  h: number; // Hue (0-360)
+  s: number; // Saturation (0-100)
+  l: number; // Lightness (0-100)
+};
+
+export interface ColorSetting {
+  name: string; // e.g., "Background"
+  variableName: keyof ThemeSettings['colors']; // e.g., "background"
+  hsl: HSLColor;
+}
+
+export type ThemeSettings = {
+  id?: string; // Should be a fixed ID like 'default_theme_config'
+  colors: {
+    background: HSLColor;
+    foreground: HSLColor;
+    primary: HSLColor;
+    primaryForeground: HSLColor;
+    secondary: HSLColor;
+    secondaryForeground: HSLColor;
+    muted: HSLColor;
+    mutedForeground: HSLColor;
+    accent: HSLColor;
+    accentForeground: HSLColor;
+    border: HSLColor;
+    ring: HSLColor;
+    // Card and Popover often mirror background or have slight adjustments.
+    // Destructive is usually a fixed red. Input often mirrors border.
+    // For simplicity, we are starting with these main ones.
+  };
+  fonts: {
+    bodyFamily: string; // e.g., 'Inter'
+    headlineFamily: string; // e.g., 'Playfair Display'
+  };
+  updatedAt?: Timestamp;
+};
+
+export type FontOption = {
+  name: string; // User-friendly name, e.g., "Inter"
+  value: string; // Font family name for CSS, e.g., "Inter"
+  weights?: string; // For Google Fonts URL, e.g., "400;700"
+  googleFontName?: string; // For Google Fonts URL, e.g., "Inter" or "Playfair+Display"
+};
+

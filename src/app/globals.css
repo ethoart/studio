@@ -1,42 +1,70 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body-family, 'Inter', sans-serif); /* Updated */
 }
 
 @layer base {
   :root {
-    --background: 0 0% 96.1%; /* Off-white #F5F5F5 */
-    --foreground: 0 0% 20%;   /* Dark Gray #333333 */
+    /* Default HSL components for colors - these will be overridden by DynamicThemeLoader */
+    /* If a value is not loaded from Firestore, these defaults will apply */
+    --background-h: 0; --background-s: 0%; --background-l: 96.1%;
+    --foreground-h: 0; --foreground-s: 0%; --foreground-l: 20%;
 
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 0 0% 20%; /* Dark Gray #333333 */
+    --card-h: 0; --card-s: 0%; --card-l: 100%;
+    --card-foreground-h: 0; --card-foreground-s: 0%; --card-foreground-l: 20%;
 
-    --popover: 0 0% 100%; /* White */
-    --popover-foreground: 0 0% 20%; /* Dark Gray #333333 */
+    --popover-h: 0; --popover-s: 0%; --popover-l: 100%;
+    --popover-foreground-h: 0; --popover-s: 0%; --popover-foreground-l: 20%;
 
-    --primary: 0 0% 20%; /* Dark Gray #333333 */
-    --primary-foreground: 0 0% 98%; /* Almost White */
+    --primary-h: 0; --primary-s: 0%; --primary-l: 20%;
+    --primary-foreground-h: 0; --primary-s: 0%; --primary-foreground-l: 98%;
 
-    --secondary: 0 0% 90%; /* Light Grayish */
-    --secondary-foreground: 0 0% 20%; /* Dark Gray #333333 */
+    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 90%;
+    --secondary-foreground-h: 0; --secondary-s: 0%; --secondary-foreground-l: 20%;
 
-    --muted: 0 0% 92%; /* Lighter Grayish */
-    --muted-foreground: 0 0% 40%; /* Medium Gray */
+    --muted-h: 0; --muted-s: 0%; --muted-l: 92%;
+    --muted-foreground-h: 0; --muted-s: 0%; --muted-foreground-l: 40%;
 
-    --accent: 0 0% 80%; /* Light Gray #CCCCCC */
-    --accent-foreground: 0 0% 20%; /* Dark Gray #333333 */
+    --accent-h: 0; --accent-s: 0%; --accent-l: 80%;
+    --accent-foreground-h: 0; --accent-s: 0%; --accent-foreground-l: 20%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-h: 0; --destructive-s: 84.2%; --destructive-l: 60.2%;
+    --destructive-foreground-h: 0; --destructive-s: 0%; --destructive-foreground-l: 98%;
 
-    --border: 0 0% 85%; /* Grayish Border */
-    --input: 0 0% 85%; /* Input Border */
-    --ring: 0 0% 20%;  /* Ring (focus) color - Dark Gray #333333 */
+    --border-h: 0; --border-s: 0%; --border-l: 85%;
+    --input-h: 0; --input-s: 0%; --input-l: 85%; /* Often same as border */
+    --ring-h: 0; --ring-s: 0%; --ring-l: 20%;
+
+    /* Composed HSL color variables */
+    --background: hsl(var(--background-h) var(--background-s) var(--background-l));
+    --foreground: hsl(var(--foreground-h) var(--foreground-s) var(--foreground-l));
+    --card: hsl(var(--card-h) var(--card-s) var(--card-l));
+    --card-foreground: hsl(var(--card-foreground-h) var(--card-foreground-s) var(--card-foreground-l));
+    --popover: hsl(var(--popover-h) var(--popover-s) var(--popover-l));
+    --popover-foreground: hsl(var(--popover-foreground-h) var(--popover-foreground-s) var(--popover-foreground-l));
+    --primary: hsl(var(--primary-h) var(--primary-s) var(--primary-l));
+    --primary-foreground: hsl(var(--primary-foreground-h) var(--primary-foreground-s) var(--primary-foreground-l));
+    --secondary: hsl(var(--secondary-h) var(--secondary-s) var(--secondary-l));
+    --secondary-foreground: hsl(var(--secondary-foreground-h) var(--secondary-foreground-s) var(--secondary-foreground-l));
+    --muted: hsl(var(--muted-h) var(--muted-s) var(--muted-l));
+    --muted-foreground: hsl(var(--muted-foreground-h) var(--muted-s) var(--muted-foreground-l));
+    --accent: hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+    --accent-foreground: hsl(var(--accent-foreground-h) var(--accent-s) var(--accent-foreground-l));
+    --destructive: hsl(var(--destructive-h) var(--destructive-s) var(--destructive-l));
+    --destructive-foreground: hsl(var(--destructive-foreground-h) var(--destructive-s) var(--destructive-foreground-l));
+    --border: hsl(var(--border-h) var(--border-s) var(--border-l));
+    --input: hsl(var(--input-h) var(--input-s) var(--input-l));
+    --ring: hsl(var(--ring-h) var(--ring-s) var(--ring-l));
 
     --radius: 0.5rem;
+
+    /* Default font families - these will be overridden by DynamicThemeLoader */
+    --font-body-family: 'Inter';
+    --font-headline-family: 'Playfair Display';
 
     /* Chart colors - can be customized later if needed */
     --chart-1: 12 76% 61%;
@@ -46,6 +74,7 @@ body {
     --chart-5: 27 87% 67%;
 
     /* Sidebar specific colors, inheriting from main theme or customized */
+    /* These could also be made dynamic if needed, but for now, they are derived or fixed */
     --sidebar-background: 0 0% 15%; /* Darker gray for sidebar */
     --sidebar-foreground: 0 0% 90%; /* Light text for sidebar */
     --sidebar-primary: 0 0% 80%; /* Accent color for primary actions in sidebar */
@@ -57,43 +86,18 @@ body {
   }
 
   .dark {
-    /* Define dark theme variables if needed in future, for now matching light or providing a basic dark variant */
-    --background: 0 0% 10%; /* Dark background */
-    --foreground: 0 0% 90%;   /* Light foreground */
+    /* Define dark theme HSL components if needed, or use a toggle to switch all HSL sets */
+    /* For now, dark theme colors are fixed but could also be made dynamic */
+    --background-h: 0; --background-s: 0%; --background-l: 10%;
+    --foreground-h: 0; --foreground-s: 0%; --foreground-l: 90%;
+    --card-h: 0; --card-s: 0%; --card-l: 15%;
+    --card-foreground-h: 0; --card-s: 0%; --card-l: 90%;
+    /* ... other dark theme HSL component overrides ... */
 
-    --card: 0 0% 15%;
-    --card-foreground: 0 0% 90%;
-
-    --popover: 0 0% 15%;
-    --popover-foreground: 0 0% 90%;
-
-    --primary: 0 0% 80%; /* Light Gray for primary in dark mode */
-    --primary-foreground: 0 0% 10%; /* Dark text on light gray */
-
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 0 0% 90%;
-
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 60%;
-
-    --accent: 0 0% 30%; /* Darker Accent */
-    --accent-foreground: 0 0% 90%;
-
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 25%;
-    --input: 0 0% 25%;
-    --ring: 0 0% 80%; /* Light Gray ring */
-    
+    /* Sidebar dark theme (can be derived or separate settings) */
     --sidebar-background: 0 0% 12%;
     --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 0 0% 75%;
-    --sidebar-primary-foreground: 0 0% 12%;
-    --sidebar-accent: 0 0% 22%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 0 0% 28%;
-    --sidebar-ring: 0 0% 75%;
+    /* ... */
   }
 }
 
@@ -103,5 +107,6 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body-family), sans-serif; /* Apply dynamic body font */
   }
 }

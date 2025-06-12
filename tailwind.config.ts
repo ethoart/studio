@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -10,8 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['"Playfair Display"', 'serif'],
+        body: ['var(--font-body-family)', 'Inter', 'sans-serif'], // Use CSS var, fallback to Inter
+        headline: ['var(--font-headline-family)', '"Playfair Display"', 'serif'], // Use CSS var, fallback to Playfair
         code: ['monospace'],
       },
       colors: {
