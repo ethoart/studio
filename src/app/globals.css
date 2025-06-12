@@ -13,7 +13,7 @@ body {
     --background-h: 0; --background-s: 0%; --background-l: 97%; /* Very light gray / Off-white */
     --foreground-h: 0; --foreground-s: 0%; --foreground-l: 15%; /* Dark gray / Near black */
 
-    --card-h: 0; --card-s: 0%; --card-l: 100%; /* White */
+    --card-h: 0; --card-s: 0%; --card-l: 100%; /* White - HSL components kept for potential direct use */
     --card-foreground-h: 0; --card-s: 0%; --card-l: 15%;
 
     --popover-h: 0; --popover-s: 0%; --popover-l: 100%;
@@ -41,7 +41,10 @@ body {
     /* Composed HSL color variables */
     --background: hsl(var(--background-h) var(--background-s) var(--background-l));
     --foreground: hsl(var(--foreground-h) var(--foreground-s) var(--foreground-l));
-    --card: hsl(var(--card-h) var(--card-s) var(--card-l));
+    
+    /* MODIFIED: Define --card directly as white */
+    --card: hsl(0, 0%, 100%); /* Explicit white */
+    
     --card-foreground: hsl(var(--card-foreground-h) var(--card-s) var(--card-foreground-l));
     --popover: hsl(var(--popover-h) var(--popover-s) var(--popover-l));
     --popover-foreground: hsl(var(--popover-foreground-h) var(--popover-s) var(--popover-foreground-l));
@@ -87,11 +90,29 @@ body {
     /* Define dark theme HSL components if needed, or use a toggle to switch all HSL sets */
     /* For now, dark theme colors are fixed but could also be made dynamic */
     --background-h: 0; --background-s: 0%; --background-l: 10%;
-    --foreground-h: 0; --foreground-s: 0%; --foreground-l: 90%;
-    --card-h: 0; --card-s: 0%; --card-l: 15%;
-    --card-foreground-h: 0; --card-s: 0%; --card-l: 90%;
-    /* ... other dark theme HSL component overrides ... */
+    --foreground-h: 0; --foreground-s: 0%; --foreground-l: 0%; /* Changed from 90% for pure black foreground */
+    
+    /* Card in dark mode */
+    --card-h: 0; --card-s: 0%; --card-l: 12%; /* Slightly lighter than pure black */
+    --card: hsl(var(--card-h) var(--card-s) var(--card-l)); /* Re-compose for dark mode */
+    --card-foreground-h: 0; --card-s: 0%; --card-l: 95%; /* Very light gray / off-white text */
+    
+    --primary-h: 0; --primary-s: 0%; --primary-l: 98%; /* White for CTAs */
+    --primary-foreground-h: 0; --primary-s: 0%; --primary-l: 10%; /* Dark text on white CTAs */
 
+    --secondary-h: 0; --secondary-s: 0%; --secondary-l: 20%; /* Dark gray for secondary elements */
+    --secondary-foreground-h: 0; --secondary-s: 0%; --secondary-l: 90%; /* Light text on dark secondary */
+
+    --muted-h: 0; --muted-s: 0%; --muted-l: 18%; /* Slightly lighter dark gray */
+    --muted-foreground-h: 0; --muted-s: 0%; --muted-l: 60%; /* Medium gray for muted text */
+
+    --accent-h: 0; --accent-s: 0%; --accent-l: 25%; /* Dark accent */
+    --accent-foreground-h: 0; --accent-s: 0%; --accent-l: 95%;
+
+    --border-h: 0; --border-s: 0%; --border-l: 25%; /* Darker border */
+    --input-h: 0; --input-s: 0%; --input-l: 22%; /* Darker for input */
+    --ring-h: 0; --ring-s: 0%; --ring-l: 90%; /* Light ring for focus */
+    
     /* Sidebar dark theme (can be derived or separate settings) */
     --sidebar-background: 0 0% 12%;
     --sidebar-foreground: 0 0% 85%;
@@ -121,3 +142,4 @@ body {
 .font-body {
   font-family: var(--font-body-family);
 }
+
