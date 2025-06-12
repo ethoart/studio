@@ -55,7 +55,7 @@ export function Header() {
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white opacity-100 shadow-none"> {/* bg-white directly, shadow-none for flatter look */}
+    <header className="sticky top-0 z-50 w-full border-b bg-white opacity-100"> 
       <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
         <Sheet>
           <SheetTrigger asChild>
@@ -64,7 +64,7 @@ export function Header() {
               <span className="sr-only">Toggle menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[320px] p-6 bg-white border-r-0 shadow-lg"> {/* Solid white sheet */}
+          <SheetContent side="left" className="w-[300px] sm:w-[320px] p-6 bg-white border-r-0 shadow-lg"> 
             <nav className="flex flex-col space-y-3 pt-6">
               {navLinks.map((link) => (
                  <SheetClose asChild key={link.href}>
@@ -72,7 +72,7 @@ export function Header() {
                     href={link.href}
                     className={cn(
                       "text-base font-medium transition-colors hover:text-primary pb-2 border-b border-transparent hover:border-primary/50",
-                      pathname === link.href ? "text-primary border-primary/50" : "text-foreground" // Text will be black
+                      pathname === link.href ? "text-primary border-primary/50" : "text-foreground" 
                     )}
                   >
                     {link.label}
@@ -116,10 +116,10 @@ export function Header() {
             <Image
               src="https://raw.githubusercontent.com/ethoart/ARO-Bazzar-NEXT-JS/main/logo%20pngs/Untitled-2.png"
               alt="ARO Bazzar Logo"
-              width={130} 
-              height={43} 
+              width={151} 
+              height={50} 
               className="object-contain" 
-              style={{ objectFit: 'contain', width: 'auto', height: '43px' }} // Increased size
+              style={{ objectFit: 'contain', width: 'auto', height: '50px' }} 
               priority
             />
           </Link>
@@ -131,8 +131,8 @@ export function Header() {
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-medium tracking-wide transition-colors hover:text-primary", // Primary will be black
-                pathname === link.href ? "text-primary" : "text-foreground/80" // Slightly lighter for inactive
+                "text-sm font-medium tracking-wide transition-colors hover:text-primary", 
+                pathname === link.href ? "text-primary" : "text-foreground/80" 
               )}
             >
               {link.label}
@@ -163,7 +163,7 @@ export function Header() {
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-white border-border shadow-lg"> {/* Solid white dropdown */}
+              <DropdownMenuContent align="end" className="w-48 bg-white border-border shadow-lg"> 
                 <DropdownMenuLabel className="text-foreground">Hi, {user?.name?.split(' ')[0] || 'User'}</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-border" />
                 <Link href="/account"><DropdownMenuItem className="text-foreground hover:bg-secondary">Profile</DropdownMenuItem></Link>
@@ -192,7 +192,7 @@ export function Header() {
       </div>
 
       {isSearchOpen && (
-        <div className="fixed inset-0 z-[100] bg-white md:hidden" onClick={() => setIsSearchOpen(false)}> {/* Solid white overlay */}
+        <div className="fixed inset-0 z-[100] bg-white md:hidden" onClick={() => setIsSearchOpen(false)}> 
           <div className="absolute top-1/4 left-1/2 w-[90%] max-w-md -translate-x-1/2 p-4 bg-white border border-border shadow-xl rounded-lg" onClick={(e) => e.stopPropagation()}>
             <Input type="search" placeholder="Search products..." className="w-full h-12 text-lg bg-background border-input text-foreground focus:border-primary" autoFocus />
             <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-muted-foreground hover:text-foreground" onClick={() => setIsSearchOpen(false)}> <LogOut className="rotate-180" /> </Button>
@@ -200,7 +200,7 @@ export function Header() {
         </div>
       )}
       {isDesktopSearchOpen && (
-         <div className="hidden md:block absolute top-full left-0 w-full bg-white border-t border-border shadow-lg z-40"> {/* Solid white search dropdown */}
+         <div className="hidden md:block absolute top-full left-0 w-full bg-white border-t border-border shadow-lg z-40"> 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-center">
                 <Input type="search" placeholder="Search products..." className="w-full max-w-lg h-11 bg-background border-input text-foreground focus:border-primary" autoFocus onBlur={() => setIsDesktopSearchOpen(false)}/>
             </div>

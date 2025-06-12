@@ -93,7 +93,7 @@ export default function HomePage() {
     <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
       {[...Array(4)].map((_, i) => (
         <div key={i} className="space-y-3">
-          <Skeleton className="h-[380px] w-full bg-secondary" /> {/* Lighter skeleton */}
+          <Skeleton className="h-[380px] w-full bg-secondary" /> 
           <Skeleton className="h-5 w-3/4 mx-auto bg-secondary" />
           <Skeleton className="h-5 w-1/2 mx-auto bg-secondary" />
         </div>
@@ -117,11 +117,11 @@ export default function HomePage() {
   const featureIcons = [Shirt, Zap, ShieldCheck];
 
   return (
-    <div className="space-y-24 md:space-y-32 lg:space-y-40"> {/* Increased spacing */}
+    <div className="space-y-16 md:space-y-20 lg:space-y-24"> 
       <ImageGallery />
 
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="text-center mb-16 md:mb-20"> {/* Increased margin bottom */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12"> 
+        <div className="text-center mb-12 md:mb-16"> 
           <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Featured Collection</h2>
           <p className="mt-4 text-base text-muted-foreground max-w-lg mx-auto">
             Curated pieces that embody modern elegance and exceptional quality.
@@ -130,7 +130,7 @@ export default function HomePage() {
         {loadingFeatured ? (
           <ProductListSkeleton />
         ) : featuredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8"> {/* Increased gap y */}
+          <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8"> 
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -141,24 +141,24 @@ export default function HomePage() {
             <p className="text-muted-foreground">No featured products available.</p>
           </div>
         )}
-        <div className="mt-16 md:mt-20 text-center"> {/* Increased margin top */}
+        <div className="mt-12 md:mt-16 text-center"> 
           <Link href="/shop">
-            <Button size="lg" variant="outline" className="group text-base px-10 py-3 rounded-none border-primary text-primary hover:bg-primary hover:text-primary-foreground font-medium">
+            <Button size="lg" variant="default" className="group text-base px-10 py-3 rounded-none font-medium">
               Shop All <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
         </div>
       </section>
 
-      <section className="bg-secondary py-20 md:py-28"> {/* Solid, light gray background */}
+      <section className="bg-secondary py-16 md:py-20"> 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-16 md:mb-20">
+          <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-12 md:mb-16">
             Why Choose ARO Bazzar?
           </h2>
           {loadingWhyChooseUs ? (
             <WhyChooseUsSkeleton />
           ) : whyChooseUsItems.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16"> {/* Increased gap */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12"> 
               {whyChooseUsItems.map((item, index) => {
                 const IconComponent = featureIcons[index % featureIcons.length] || Shirt; 
                 return (
@@ -181,8 +181,8 @@ export default function HomePage() {
         </div>
       </section>
       
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-        <div className="text-center mb-16 md:mb-20">
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="text-center mb-12 md:mb-16">
           <h2 className="font-headline text-3xl sm:text-4xl font-bold tracking-tight text-foreground">New Arrivals</h2>
           <p className="mt-4 text-base text-muted-foreground max-w-lg mx-auto">
             Discover the latest additions to our curated collection of fashion essentials.
@@ -191,7 +191,7 @@ export default function HomePage() {
         {loadingNewArrivals ? (
           <ProductListSkeleton />
         ) : newArrivals.length > 0 ? (
-          <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
             {newArrivals.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

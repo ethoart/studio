@@ -42,7 +42,7 @@ export function ImageGallery() {
         } else {
             setHeroImage({
               id: 'placeholder-hero',
-              src: 'https://placehold.co/1600x900/e9e9e9/1c1c1c.png', // Lighter placeholder
+              src: 'https://placehold.co/1600x900/FFFFFF/000000.png', 
               alt: 'ARO Bazzar New Collection Placeholder',
               title: 'New Season Styles',
               subtitle: 'Explore fresh designs and timeless essentials.',
@@ -78,7 +78,7 @@ export function ImageGallery() {
 
   if (isLoading) {
     return (
-      <div className="relative w-full h-[550px] md:h-[650px] lg:h-[750px] bg-secondary"> {/* Light gray skeleton bg */}
+      <div className="relative w-full h-[550px] md:h-[650px] lg:h-[750px] bg-secondary"> 
         <Skeleton className="w-full h-full" />
          <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
             <Skeleton className="h-12 w-3/4 max-w-lg mb-4 bg-muted" />
@@ -102,11 +102,11 @@ export function ImageGallery() {
   }
   
   const HeroContent = () => (
-    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-black/10"> {/* Subtle overlay for text contrast */}
+    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6"> 
        {heroImage.title && (
          <h1 
             className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-4 md:mb-5 leading-tight tracking-tight"
-            style={{ textShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)' }}
+            style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }} 
          >
            {heroImage.title}
          </h1>
@@ -114,14 +114,14 @@ export function ImageGallery() {
        {heroImage.subtitle && (
          <p 
             className="text-lg md:text-xl text-white/90 mb-8 md:mb-10 max-w-xl"
-            style={{ textShadow: '0px 1px 3px rgba(0, 0, 0, 0.3)' }}
+            style={{ textShadow: '0 1px 3px rgba(0, 0, 0, 0.5)' }} 
           >
            {heroImage.subtitle}
          </p>
        )}
        {heroImage.link && (
         <Link href={heroImage.link} passHref>
-          <Button size="lg" variant="default" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm px-10 py-3 text-base font-medium tracking-wide">
+          <Button size="lg" variant="default" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-none px-10 py-3 text-base font-medium tracking-wide">
             Shop Now
           </Button>
         </Link>
@@ -133,7 +133,7 @@ export function ImageGallery() {
   );
 
   return (
-    <div className="relative w-full h-[550px] md:h-[650px] lg:h-[750px] overflow-hidden bg-secondary"> {/* Base background for image loading */}
+    <div className="relative w-full h-[550px] md:h-[650px] lg:h-[750px] overflow-hidden bg-secondary"> 
         <Image
           src={heroImage.src}
           alt={heroImage.alt}
