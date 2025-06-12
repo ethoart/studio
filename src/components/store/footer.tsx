@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter } from 'lucide-react';
+import { Facebook, Instagram } from 'lucide-react'; // Removed Twitter
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -19,8 +19,7 @@ export function Footer() {
             <ul className="mt-4 space-y-2 text-sm">
               <li><Link href="/shop" className="text-foreground/70 hover:text-primary">Shop All</Link></li>
               <li><Link href="/contact" className="text-foreground/70 hover:text-primary">Contact Us</Link></li>
-              <li><Link href="/faq" className="text-foreground/70 hover:text-primary">FAQ</Link></li>
-              <li><Link href="/shipping" className="text-foreground/70 hover:text-primary">Shipping & Returns</Link></li>
+              {/* Removed FAQ and Shipping & Returns links */}
             </ul>
           </div>
           <div>
@@ -34,10 +33,7 @@ export function Footer() {
                 <Instagram className="h-6 w-6" />
                 <span className="sr-only">Instagram</span>
               </a>
-              <a href="#" target="_blank" rel="noopener noreferrer" className="text-foreground/70 hover:text-primary">
-                <Twitter className="h-6 w-6" />
-                <span className="sr-only">Twitter</span>
-              </a>
+              {/* Removed Twitter link */}
             </div>
             <p className="mt-4 text-sm text-foreground/70">
               Subscribe to our newsletter for updates and special offers.
