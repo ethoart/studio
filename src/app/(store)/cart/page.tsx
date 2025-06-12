@@ -6,20 +6,20 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label'; // Added import
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import type { CartItem } from '@/types';
-import { mockProducts } from '@/lib/mock-data'; // For demo
+// Removed: import { mockProducts } from '@/lib/mock-data'; 
 import { Trash2, ShoppingBag } from 'lucide-react';
 
-// Demo cart state. In a real app, this would come from context/state management.
-const initialCartItems: CartItem[] = [
-  { ...mockProducts[0], quantity: 1, selectedSize: 'M', selectedColor: 'Beige' },
-  { ...mockProducts[2], quantity: 2, selectedSize: '32', selectedColor: 'Charcoal' },
-];
+// Cart now initializes as empty. In a real app, this would come from context/state management or localStorage.
+const initialCartItems: CartItem[] = [];
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+
+  // In a real app, you'd likely fetch cartItems from a persistent source here in useEffect
+  // For now, it just uses the initial empty state or whatever is manipulated by user actions.
 
   const updateQuantity = (id: string, newQuantity: number) => {
     setCartItems(currentItems =>
@@ -62,7 +62,7 @@ export default function CartPage() {
               <li key={product.id} className="flex py-6">
                 <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-border sm:h-32 sm:w-32">
                   <Image
-                    src={product.imageUrl}
+                    src={product.imageUrl || 'https://placehold.co/128x128.png'}
                     alt={product.name}
                     width={128}
                     height={128}
