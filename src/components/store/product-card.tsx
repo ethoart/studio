@@ -14,7 +14,12 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   // Ensure product.slug is a valid string, otherwise the link might be broken.
   // If product.slug is not guaranteed, you might need a fallback or error handling.
-  const productLink = product.slug ? `/product/${product.slug}` : `/product/not-found`; // Or some other fallback
+  const productLink = product.slug ? `/product/${product.slug}` : `/product/not-found`; 
+
+  // DEBUGGING: Log the image URL being used for this product card
+  if (typeof window !== 'undefined') { // Ensure this only runs on the client-side
+    console.log(`ProductCard: Rendering product "${product.name}", Image URL: "${product.imageUrl}"`);
+  }
 
   return (
     <Card className="group overflow-hidden rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
@@ -28,6 +33,8 @@ export function ProductCard({ product }: ProductCardProps) {
             className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             data-ai-hint="fashion product"
+            onError={(e) => console.error(`Error loading image for ${product.name}: ${product.imageUrl}`, e.currentTarget.currentSrc)}
+            unoptimized={product.imageUrl && !product.imageUrl.startsWith('https') ? true : undefined} // Attempt to load non-https as unoptimized
           />
         </Link>
         <Button variant="ghost" size="icon" className="absolute top-2 right-2 bg-background/70 hover:bg-background rounded-full text-foreground/70 hover:text-primary">
