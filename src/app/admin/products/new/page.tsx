@@ -22,7 +22,6 @@ import type { Category } from "@/types";
 const productFormSchema = z.object({
   name: z.string().min(3, "Product name must be at least 3 characters"),
   categoryId: z.string().min(1, "Please select a category"),
-  // categoryName will be derived, not directly part of the form input for Zod schema
   description: z.string().min(10, "Description must be at least 10 characters"),
   price: z.coerce.number().positive("Price must be a positive number"),
   stock: z.coerce.number().int().min(0, "Stock cannot be negative"),
@@ -109,27 +108,30 @@ export default function NewProductPage() {
 
     try {
       const productData = {
-        ...data,
-        categoryName: selectedCategory.name, // Add categoryName
+        ...data, // Contains all form fields validated by Zod
+        categoryName: selectedCategory.name,
         sizes: data.sizes.split(',').map(s => s.trim()).filter(s => s),
         colors: data.colors.split(',').map(c => c.trim()).filter(c => c),
         images: data.additionalImages ? data.additionalImages.split(',').map(url => url.trim()).filter(url => url) : [],
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
+      // We don't want to store 'additionalImages' field itself, as its content is now in 'images' array.
       delete (productData as any).additionalImages;
 
-      await addDoc(collection(db, "products"), productData);
+      console.log('Data to be saved to Firestore (New Product):', JSON.stringify(productData, null, 2));
+
+      const docRef = await addDoc(collection(db, "products"), productData);
       toast({
-        title: "Product Created",
-        description: `Product "${data.name}" has been successfully added.`,
+        title: "Product Created Successfully",
+        description: `Product "${data.name}" (ID: ${docRef.id}) has been added.`,
       });
       router.push("/admin/products");
-    } catch (error) {
-      console.error("Error creating product:", error);
+    } catch (error: any) {
+      console.error("Error creating product in Firestore:", error);
       toast({
-        title: "Error",
-        description: "Could not create product. Please try again.",
+        title: "Firestore Error",
+        description: `Could not create product: ${error.message || 'Unknown Firestore error.'}`,
         variant: "destructive",
       });
     } finally {

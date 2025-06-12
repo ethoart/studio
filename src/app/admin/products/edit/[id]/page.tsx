@@ -22,7 +22,6 @@ import { useRouter } from "next/navigation";
 const productFormSchema = z.object({
   name: z.string().min(3, "Product name must be at least 3 characters"),
   categoryId: z.string().min(1, "Please select a category"),
-  // categoryName is derived
   description: z.string().min(10, "Description must be at least 10 characters"),
   price: z.coerce.number().positive("Price must be a positive number"),
   stock: z.coerce.number().int().min(0, "Stock cannot be negative"),
@@ -55,18 +54,8 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     mode: "onChange",
   });
   
-  const productName = form.watch("name");
-  useEffect(() => {
-    // Only auto-update slug if it was likely auto-generated or if the original name changes significantly.
-    // This simple version will update if name changes and slug was based on old name.
-    const currentSlug = form.getValues("slug");
-    if (productName && (!currentSlug || currentSlug === generateSlugFromName(form.getValues("name")) || currentSlug !== generateSlugFromName(productName))) {
-      // form.setValue("slug", generateSlugFromName(productName), { shouldValidate: true });
-      // To avoid aggressive slug changes, let user manage it mostly after initial generation.
-      // One option: set slug only if it's currently empty during edit.
-    }
-  }, [productName, form]);
-
+  // productName watcher is not strictly needed for slug on edit page if we don't auto-update it aggressively
+  // const productName = form.watch("name"); 
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -110,7 +99,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
             sizes: productData.sizes.join(', '),
             colors: productData.colors.join(', '),
             imageUrl: productData.imageUrl,
-            additionalImages: (productData.images || []).join(',\n'),
+            additionalImages: (productData.images || []).join(',\n'), // Join with newline for better textarea display
             slug: productData.slug || generateSlugFromName(productData.name),
           });
         } else {
@@ -143,26 +132,29 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
     try {
       const productDocRef = doc(db, "products", params.id);
       const productDataToUpdate = {
-        ...data,
-        categoryName: selectedCategory.name, // Add categoryName
+        ...data, // Contains all form fields validated by Zod
+        categoryName: selectedCategory.name,
         sizes: data.sizes.split(',').map(s => s.trim()).filter(s => s),
         colors: data.colors.split(',').map(c => c.trim()).filter(c => c),
         images: data.additionalImages ? data.additionalImages.split(',').map(url => url.trim()).filter(url => url) : [],
         updatedAt: serverTimestamp(),
       };
+      // We don't want to store 'additionalImages' field itself, as its content is now in 'images' array.
       delete (productDataToUpdate as any).additionalImages;
+
+      console.log('Data to be updated in Firestore (Edit Product):', JSON.stringify(productDataToUpdate, null, 2));
 
       await updateDoc(productDocRef, productDataToUpdate);
       toast({
-        title: "Product Updated",
-        description: `Product "${data.name}" has been successfully updated.`,
+        title: "Product Updated Successfully",
+        description: `Product "${data.name}" has been updated.`,
       });
       router.push("/admin/products");
-    } catch (error) {
-      console.error("Error updating product:", error);
+    } catch (error: any) {
+      console.error("Error updating product in Firestore:", error);
       toast({
-        title: "Error",
-        description: "Could not update product. Please try again.",
+        title: "Firestore Error",
+        description: `Could not update product: ${error.message || 'Unknown Firestore error.'}`,
         variant: "destructive",
       });
     } finally {
@@ -247,7 +239,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isFetchingCategories}>
+                      <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value} disabled={isFetchingCategories}>
                         <FormControl><SelectTrigger><SelectValue placeholder={isFetchingCategories ? "Loading categories..." : "Select category"} /></SelectTrigger></FormControl>
                         <SelectContent>
                           {!isFetchingCategories && categories.map(cat => (
@@ -351,7 +343,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                   <FormItem>
                     <FormLabel>Additional Image URLs (Optional)</FormLabel>
                     <FormControl><Textarea rows={3} placeholder="https://placehold.co/600x800.png, ..." {...field} /></FormControl>
-                    <FormDescription>Comma-separated URLs.</FormDescription>
+                    <FormDescription>Comma-separated URLs. Use newline for better readability if pasting multiple.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
